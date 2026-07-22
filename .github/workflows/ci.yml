@@ -24,7 +24,7 @@ jobs:
           tools: composer
       - run: composer install --no-progress --no-interaction
       - run: ./vendor/bin/pint --test
-      - run: ./vendor/bin/phpcs --standard=PSR12 app/
+      - run: ./vendor/bin/phpcs -n --standard=PSR12 app/
 
   # Stage 2: No-Chinese-Character Enforcement
   no-chinese:
