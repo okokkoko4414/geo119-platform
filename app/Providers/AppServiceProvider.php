@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(RedisStore::class, PhpRedisStore::class);
 
-        $this->app->singleton(
+        $this->app->bind(
             ClaudeLocalClient::class,
             static fn ($app) => new ClaudeLocalClient(
                 endpoint: config('services.deepseek.endpoint'),

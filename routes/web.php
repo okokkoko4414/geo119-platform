@@ -7,6 +7,7 @@ use App\Http\Controllers\ComponentGalleryController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\OptimizationResultsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,12 @@ Route::get('/health', HealthController::class)->name('health');
 // Static routes that must not be consumed by {locale?} prefix
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::post('/language/switch', [LanguageController::class, 'switch'])->name('language.switch');
+
+// Optimization detail page — outside {locale?} prefix to avoid parameter binding issues
+Route::get('/{locale?}/dashboard/optimizations/{id}', [OptimizationResultsController::class, 'show'])
+    ->where('locale', '[a-z]{2}')
+    ->middleware('web')
+    ->name('optimizations.show');
 
 Route::prefix('{locale?}')->middleware('web')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('locale.home');

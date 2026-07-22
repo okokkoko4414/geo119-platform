@@ -12,7 +12,7 @@ class RateLimiter
 
     private ?float $lastRefill = null;
 
-    public function __construct(int $maxTokens = 100, float $refillRate = 100.0 / 60.0)
+    public function __construct(int $maxTokens = 500, float $refillRate = 100.0 / 60.0)
     {
         $this->tokens = (float) $maxTokens;
         $this->maxTokens = (float) $maxTokens;

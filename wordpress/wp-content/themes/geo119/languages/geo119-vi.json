@@ -1,0 +1,155 @@
+{
+  "translation-revision-date": "2026-07-22",
+  "generator": "GEO119",
+  "domain": "geo119",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "geo119",
+        "lang": "vi",
+        "plural-forms": "nplurals=1; plural=0;"
+      },
+      "AI-powered content optimization and translation for global audiences. Reach more users in their native language.": [
+        "Toi uu hoa noi dung va dich thuat bang AI cho khang gia toan cau. Tiep can nhieu nguoi dung hon bang ngon ngu cua ho."
+      ],
+      "All rights reserved.": [
+        "Da dang ky ban quyen."
+      ],
+      "Based on current compute rates.": [
+        "Dua tren ti gia tinh toan hien tai."
+      ],
+      "By confirming, you agree to the GEO119 Terms of Service and Privacy Policy.": [
+        "Bang cach xac nhan, ban dong y voi Dieu khoan dich vu va Chinh sach bao mat cua GEO119."
+      ],
+      "Card": [
+        "The"
+      ],
+      "Compute Cost Estimate": [
+        "Uoc tinh chi phi tinh toan"
+      ],
+      "Compute cost": [
+        "Chi phi tinh toan"
+      ],
+      "Confirm Payment": [
+        "Xac nhan thanh toan"
+      ],
+      "Content Optimization Platform": [
+        "Nen tang toi uu hoa noi dung"
+      ],
+      "Content optimization and translation": [
+        "Toi uu hoa noi dung va dich thuat"
+      ],
+      "Cost Transparency": [
+        "Minh bach chi phi"
+      ],
+      "Description": [
+        "Mo ta"
+      ],
+      "English": [
+        "Tieng Anh"
+      ],
+      "Estimated Cost": [
+        "Chi phi uoc tinh"
+      ],
+      "Estimated cost before payment confirmation.": [
+        "Chi phi uoc tinh truoc khi xac nhan thanh toan."
+      ],
+      "Everything you need to take your content global.": [
+        "Tat ca nhung gi ban can de dua noi dung ra toan cau."
+      ],
+      "Footer Navigation": [
+        "Dieu huong chan trang"
+      ],
+      "Get Started Free": [
+        "Bat dau mien phi"
+      ],
+      "JSON-LD structured data, hreflang tags, XML sitemaps, and clean URLs — everything search engines need.": [
+        "Du lieu co cau truc JSON-LD, the hreflang, so do XML, va URL sach — tat ca nhung gi cong cu tim kiem can."
+      ],
+      "Language": [
+        "Ngon ngu"
+      ],
+      "Languages": [
+        "Ngon ngu"
+      ],
+      "Learn More": [
+        "Tim hieu them"
+      ],
+      "Multi-Language Translation": [
+        "Dich thuat da ngon ngu"
+      ],
+      "No content found.": [
+        "Khong tim thay noi dung."
+      ],
+      "Pay with your PayPal account": [
+        "Thanh toan bang tai khoan PayPal"
+      ],
+      "PayPal": [
+        "PayPal"
+      ],
+      "Payment": [
+        "Thanh toan"
+      ],
+      "Payment Method": [
+        "Phuong thuc thanh toan"
+      ],
+      "Primary Navigation": [
+        "Dieu huong chinh"
+      ],
+      "Ready to reach a global audience?": [
+        "San sang tiep can khang gia toan cau?"
+      ],
+      "Response Time": [
+        "Thoi gian phan hoi"
+      ],
+      "Review your order and confirm payment.": [
+        "Xem lai don hang va xac nhan thanh toan."
+      ],
+      "SEO Built-In": [
+        "SEO tich hop san"
+      ],
+      "See estimated compute costs in points and your local currency before every operation. No surprise charges.": [
+        "Xem uoc tinh chi phi tinh toan bang diem va tien te dia phuong truoc moi thao tac. Khong co phi bat ngo."
+      ],
+      "Service": [
+        "Dich vu"
+      ],
+      "Start optimizing your content today with GEO119\\'s AI-powered platform. Free to get started.": [
+        "Bat dau toi uu hoa noi dung cua ban ngay hom nay voi nen tang AI cua GEO119. Mien phi de bat dau."
+      ],
+      "Subtotal": [
+        "Tam tinh"
+      ],
+      "Support": [
+        "Ho tro"
+      ],
+      "Total": [
+        "Tong cong"
+      ],
+      "Translate your content into 70+ languages with AI-powered accuracy. Automatic locale detection and language switching.": [
+        "Dich noi dung cua ban sang hon 70 ngon ngu voi do chinh xac AI. Tu dong phat hien ngon ngu va chuyen doi."
+      ],
+      "Translation Job": [
+        "Cong viec dich thuat"
+      ],
+      "Uptime": [
+        "Thoi gian hoat dong"
+      ],
+      "VND": [
+        "VND"
+      ],
+      "Vietnamese": [
+        "Tieng Viet"
+      ],
+      "Visa, Mastercard, JCB": [
+        "Visa, Mastercard, JCB"
+      ],
+      "Why GEO119?": [
+        "Tai sao chon GEO119?"
+      ],
+      "points": [
+        "diem"
+      ]
+    }
+  }
+}

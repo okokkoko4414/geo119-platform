@@ -14,6 +14,10 @@ class TranslationCache
 
     private const PREFIX = 'trans:';
 
+    private const STATS_HITS_KEY = 'trans:stats:hits';
+
+    private const STATS_MISSES_KEY = 'trans:stats:misses';
+
     private Connection $redis;
 
     public function __construct()
@@ -25,12 +29,28 @@ class TranslationCache
     {
         $cached = $this->redis->get($this->cacheKey($locale, $namespace, $key));
 
-        return $cached !== null ? (string) $cached : null;
+        if ($cached !== null) {
+            $this->redis->incr(self::STATS_HITS_KEY);
+
+            return (string) $cached;
+        }
+
+        $this->redis->incr(self::STATS_MISSES_KEY);
+
+        return null;
     }
 
     public function has(string $locale, string $namespace, string $key): bool
     {
-        return (bool) $this->redis->exists($this->cacheKey($locale, $namespace, $key));
+        $exists = (bool) $this->redis->exists($this->cacheKey($locale, $namespace, $key));
+
+        if ($exists) {
+            $this->redis->incr(self::STATS_HITS_KEY);
+        } else {
+            $this->redis->incr(self::STATS_MISSES_KEY);
+        }
+
+        return $exists;
     }
 
     public function put(string $locale, string $namespace, string $key, string $value): void
@@ -90,12 +110,16 @@ class TranslationCache
 
     public function hitRate(): float
     {
-        $info = $this->redis->info('stats');
-        $hits = (int) ($info['keyspace_hits'] ?? 0);
-        $misses = (int) ($info['keyspace_misses'] ?? 0);
+        $hits = (int) $this->redis->get(self::STATS_HITS_KEY);
+        $misses = (int) $this->redis->get(self::STATS_MISSES_KEY);
         $total = $hits + $misses;
 
         return $total > 0 ? $hits / $total : 0.0;
+    }
+
+    public function resetStats(): void
+    {
+        $this->redis->del(self::STATS_HITS_KEY, self::STATS_MISSES_KEY);
     }
 
     private function cacheKey(string $locale, string $namespace, string $key): string

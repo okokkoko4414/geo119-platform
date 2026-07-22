@@ -46,7 +46,7 @@ test('refill restores tokens over time', function () {
 
 test('default constructor creates valid limiter', function () {
     $limiter = new RateLimiter;
-    expect($limiter->getAvailableTokens())->toBe(100.0)
+    expect($limiter->getAvailableTokens())->toBe(500.0)
         ->and($limiter->tryAcquire())->toBeTrue();
 });
 

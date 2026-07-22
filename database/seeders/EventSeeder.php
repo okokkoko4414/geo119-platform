@@ -22,7 +22,11 @@ class EventSeeder extends Seeder
         $now = now();
         $rows = [];
 
-        for ($daysAgo = 29; $daysAgo >= 0; $daysAgo--) {
+        // Start from day 2 to avoid UTC-midnight boundary straddle (July 1 +07:00 = June 30 UTC)
+        $startDate = $now->copy()->startOfMonth()->addDay();
+        $maxDays = max(0, (int) $startDate->diffInDays($now));
+
+        for ($daysAgo = $maxDays; $daysAgo >= 0; $daysAgo--) {
             $date = $now->copy()->subDays($daysAgo);
             $impressionsPerDay = random_int(500, 2000);
 
@@ -35,7 +39,7 @@ class EventSeeder extends Seeder
 
                 $rows[] = [
                     'event_type' => 'impression',
-                    'user_id' => random_int(0, 1) ? fake()->uuid() : null,
+                    'user_id' => random_int(0, 1) ? \Ramsey\Uuid\Uuid::uuid4()->toString() : null,
                     'session_id' => bin2hex(random_bytes(16)),
                     'locale' => $locale,
                     'country' => self::COUNTRIES[array_rand(self::COUNTRIES)],

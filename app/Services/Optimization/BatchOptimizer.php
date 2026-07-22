@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Optimization;
 
+use App\Models\OptimizationResult as OptimizationResultModel;
 use App\Services\ClaudeLocal\ClaudeLocalClient;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Redis;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
@@ -211,6 +213,9 @@ final class BatchOptimizer
                 // 11. Store in dedup cache
                 $this->dedupCache->set($sourceText, $locale, $type, $result);
 
+                // 12. Persist to database + publish to stream for real-time dashboard
+                $this->persistResult($result);
+
                 return $result;
             } finally {
                 $this->concurrencyController->release();
@@ -229,5 +234,45 @@ final class BatchOptimizer
         } finally {
             $this->dedupCache->releaseLock($sourceText, $locale, $type);
         }
+    }
+
+    private function persistResult(OptimizationResult $result): void
+    {
+        $sourceHash = $this->dedupCache->hashKey(
+            $result->sourceText,
+            $result->targetLocale,
+            $result->optimizationType,
+        );
+
+        OptimizationResultModel::create([
+            'id' => $result->id,
+            'source_text' => $result->sourceText,
+            'optimized_text' => $result->optimizedText,
+            'target_locale' => $result->targetLocale,
+            'optimization_type' => $result->optimizationType->value,
+            'before_score' => $result->score->beforeScore,
+            'after_score' => $result->score->afterScore,
+            'improvement' => $result->score->improvement,
+            'cost_cents' => $result->costCents,
+            'input_tokens' => $result->inputTokens,
+            'output_tokens' => $result->outputTokens,
+            'model' => $result->model,
+            'latency_ms' => $result->latencyMs,
+            'source_hash' => $sourceHash,
+            'from_cache' => $result->fromCache,
+            'cached_at' => $result->cachedAt,
+        ]);
+
+        Redis::xadd('optimizations:stream', '*', [
+            'id' => $result->id,
+            'target_locale' => $result->targetLocale,
+            'optimization_type' => $result->optimizationType->value,
+            'before_score' => (string) $result->score->beforeScore,
+            'after_score' => (string) $result->score->afterScore,
+            'improvement' => (string) $result->score->improvement,
+            'timestamp' => (string) now()->timestamp,
+        ]);
+
+        Redis::xtrim('optimizations:stream', 10_000, true);
     }
 }
