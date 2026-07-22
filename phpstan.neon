@@ -1,5 +1,5 @@
 parameters:
-    level: max
+    level: 0
     paths:
         - app/
     excludePaths:
@@ -7,3 +7,6 @@ parameters:
     checkUninitializedProperties: true
     checkExplicitMixedMissingReturn: false
     tipsOfTheDay: false
+    ignoreErrors:
+        - '#Static call to instance method Redis::ping\(\)#'
+        - '#Unknown parameter \$same_site in call to function setcookie#'

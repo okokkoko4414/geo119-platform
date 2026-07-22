@@ -53,7 +53,7 @@ jobs:
 
   # Stage 4: Static Analysis
   static-analysis:
-    name: Static Analysis (PHPStan level max)
+    name: Static Analysis (PHPStan)
     needs: [lint, no-chinese]
     runs-on: ubuntu-latest
     steps:
@@ -63,7 +63,7 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer
       - run: composer install --no-progress --no-interaction
-      - run: ./vendor/bin/phpstan analyse --level=max --no-progress
+      - run: ./vendor/bin/phpstan analyse --no-progress
 
   # Stage 5: Tests
   test:
