@@ -53,8 +53,8 @@ final class EventController extends Controller
             header('Cache-Control: no-cache');
             header('X-Accel-Buffering: no');
 
-            $lastEventId = '$';
-            $lastOptId = '$';
+            $lastEventId = '0';
+            $lastOptId = '0';
 
             while (! connection_aborted()) {
                 $hasEvents = false;

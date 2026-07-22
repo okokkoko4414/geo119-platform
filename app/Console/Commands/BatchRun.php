@@ -151,7 +151,7 @@ final class BatchRun extends Command
         $this->info("  Successful:     {$summary['successful']}");
         $this->info("  Failed:         {$summary['failed']}");
         $this->info("  Cache hits:     {$summary['cache_hits']}");
-        $this->info("  Cache hit rate: ".round($summary['cache_hit_rate'] * 100, 1).'%');
+        $this->info('  Cache hit rate: '.round($summary['cache_hit_rate'] * 100, 1).'%');
         $this->info("  Total words:    {$summary['total_words']}");
         $this->info("  Total cost:     \${$summary['total_cost_cents']}");
         $this->info("  Cost/word:      \${$summary['cost_per_word_cents']}");
@@ -211,7 +211,7 @@ final class BatchRun extends Command
         $pass1Ms = (int) ((microtime(true) - $pass1Start) * 1000);
         $this->info("  Duration: {$pass1Ms}ms");
         $this->info("  Cache hits: {$result1['summary']['cache_hits']}");
-        $this->info("  From cache: ".($result1['details'][0]['from_cache'] ?? 'null' ? 'true' : 'false'));
+        $this->info('  From cache: '.($result1['details'][0]['from_cache'] ?? 'null' ? 'true' : 'false'));
 
         // Second execution — same item, should hit dedup cache
         $this->info('Pass 2 (duplicate submission):');
@@ -220,7 +220,7 @@ final class BatchRun extends Command
         $pass2Ms = (int) ((microtime(true) - $pass2Start) * 1000);
         $this->info("  Duration: {$pass2Ms}ms");
         $this->info("  Cache hits: {$result2['summary']['cache_hits']}");
-        $this->info("  From cache: ".($result2['details'][0]['from_cache'] ?? 'null' ? 'true' : 'false'));
+        $this->info('  From cache: '.($result2['details'][0]['from_cache'] ?? 'null' ? 'true' : 'false'));
 
         // Assert dedup worked
         $dedupWorks = ($result2['summary']['cache_hits'] ?? 0) > 0;

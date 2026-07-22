@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Mock DeepSeek API server for translation pipeline E2E testing.
  *
@@ -113,7 +114,8 @@ $mockTranslations = [
 ];
 
 // Generic fallback: add "[{lang}] " prefix to mark it as a mock translation
-function generateMockTranslation(string $text, string $targetLang): string {
+function generateMockTranslation(string $text, string $targetLang): string
+{
     global $mockTranslations;
 
     // Check if we have a pre-crafted translation
@@ -152,7 +154,7 @@ if ($_SERVER['REQUEST_URI'] === '/health' || $_SERVER['REQUEST_URI'] === '/') {
 if ($_SERVER['REQUEST_URI'] === '/v1/chat/completions' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);
 
-    if (!$body || !isset($body['messages'])) {
+    if (! $body || ! isset($body['messages'])) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid request']);
         exit;
@@ -169,7 +171,7 @@ if ($_SERVER['REQUEST_URI'] === '/v1/chat/completions' && $_SERVER['REQUEST_METH
         }
     }
 
-    $combinedPrompt = $systemPrompt . ' ' . $userMessage;
+    $combinedPrompt = $systemPrompt.' '.$userMessage;
     $isTranslation = str_contains($systemPrompt, 'translator') || str_contains($systemPrompt, 'Translate');
     $isQualityScore = str_contains($combinedPrompt, 'Rate the quality of this translation')
                       || str_contains($systemPrompt, 'evaluator')
@@ -202,9 +204,9 @@ if ($_SERVER['REQUEST_URI'] === '/v1/chat/completions' && $_SERVER['REQUEST_METH
             ],
             'model' => 'mock-deepseek',
             'usage' => [
-                'prompt_tokens' => (int)(strlen($userMessage) / 4),
-                'completion_tokens' => (int)(strlen($translated) / 4),
-                'total_tokens' => (int)((strlen($userMessage) + strlen($translated)) / 4),
+                'prompt_tokens' => (int) (strlen($userMessage) / 4),
+                'completion_tokens' => (int) (strlen($translated) / 4),
+                'total_tokens' => (int) ((strlen($userMessage) + strlen($translated)) / 4),
             ],
         ];
     } elseif ($isQualityScore) {
@@ -220,9 +222,9 @@ if ($_SERVER['REQUEST_URI'] === '/v1/chat/completions' && $_SERVER['REQUEST_METH
             ],
             'model' => 'mock-deepseek',
             'usage' => [
-                'prompt_tokens' => (int)(strlen($userMessage) / 4),
+                'prompt_tokens' => (int) (strlen($userMessage) / 4),
                 'completion_tokens' => 3,
-                'total_tokens' => (int)(strlen($userMessage) / 4) + 3,
+                'total_tokens' => (int) (strlen($userMessage) / 4) + 3,
             ],
         ];
     } else {

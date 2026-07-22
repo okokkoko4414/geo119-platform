@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class EventSeeder extends Seeder
 {
@@ -39,7 +40,7 @@ class EventSeeder extends Seeder
 
                 $rows[] = [
                     'event_type' => 'impression',
-                    'user_id' => random_int(0, 1) ? \Ramsey\Uuid\Uuid::uuid4()->toString() : null,
+                    'user_id' => random_int(0, 1) ? Uuid::uuid4()->toString() : null,
                     'session_id' => bin2hex(random_bytes(16)),
                     'locale' => $locale,
                     'country' => self::COUNTRIES[array_rand(self::COUNTRIES)],

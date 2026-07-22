@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GEOA-21: Seed events + optimization results for dashboard verification.
  * Run: php scripts/geo21-seed.php
@@ -12,11 +13,12 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 
@@ -49,7 +51,7 @@ for ($daysAgo = 7; $daysAgo >= 0; $daysAgo--) {
             'device_type' => $devices[array_rand($devices)],
             'browser' => $browsers[array_rand($browsers)],
             'is_bot' => false,
-            'target_url' => 'https://geo119.com/' . $locale . '/',
+            'target_url' => 'https://geo119.com/'.$locale.'/',
             'referrer_url' => random_int(0, 1) ? 'https://google.com/' : null,
             'metadata' => json_encode(['page_type' => 'home']),
             'created_at' => $createdAt->toIso8601String(),
@@ -68,7 +70,7 @@ for ($daysAgo = 7; $daysAgo >= 0; $daysAgo--) {
                 'device_type' => $eventsBatch[count($eventsBatch) - 1]['device_type'],
                 'browser' => $eventsBatch[count($eventsBatch) - 1]['browser'],
                 'is_bot' => false,
-                'target_url' => 'https://geo119.com/' . $locale . '/pricing',
+                'target_url' => 'https://geo119.com/'.$locale.'/pricing',
                 'referrer_url' => $eventsBatch[count($eventsBatch) - 1]['target_url'],
                 'metadata' => json_encode(['page_type' => 'pricing']),
                 'created_at' => $clickTime->toIso8601String(),
@@ -143,7 +145,7 @@ for ($daysAgo = 7; $daysAgo >= 0; $daysAgo--) {
         $optBatch[] = [
             'id' => Uuid::uuid4()->toString(),
             'source_text' => $sourceText,
-            'optimized_text' => $fromCache ? $sourceText : '[Optimized] ' . $sourceText,
+            'optimized_text' => $fromCache ? $sourceText : '[Optimized] '.$sourceText,
             'target_locale' => $locale,
             'optimization_type' => $type,
             'before_score' => $beforeScore,
