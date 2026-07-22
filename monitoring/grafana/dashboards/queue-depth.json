@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "title": "GEO119 Queue Depth",
+    "uid": "geo119-queue-depth",
+    "panels": [
+      {
+        "title": "Queue Depth by Queue",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "laravel_queue_depth",
+            "legendFormat": "{{ queue }}"
+          }
+        ]
+      },
+      {
+        "title": "Jobs Processed per Minute",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(laravel_jobs_processed_total[1m])",
+            "legendFormat": "{{ queue }}"
+          }
+        ]
+      },
+      {
+        "title": "Failed Jobs",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "laravel_jobs_failed_total"
+          }
+        ]
+      }
+    ]
+  }
+}

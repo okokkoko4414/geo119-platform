@@ -1,0 +1,35 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: geoflow-laravel-pdb
+  namespace: geoflow
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: geoflow
+      component: laravel
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: geoflow-horizon-pdb
+  namespace: geoflow
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: geoflow
+      component: horizon
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: geoflow-wordpress-pdb
+  namespace: geoflow
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: geoflow
+      component: wordpress

@@ -1,0 +1,9 @@
+receivers:
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - routing_key: '{{ PAGERDUTY_ROUTING_KEY }}'
+        severity: 'critical'
+        description: '{{ .CommonAnnotations.description }}'
+        client: 'GEO119 Prometheus'
+        client_url: 'https://grafana.geo119.com'
+  - name: 'null'

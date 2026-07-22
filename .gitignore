@@ -1,0 +1,46 @@
+/vendor/
+/node_modules/
+.npmrc
+
+# Environment files
+.env
+.env.production
+.env.local
+
+# Laravel-specific
+/storage/framework/cache/data/
+/storage/framework/sessions/
+/storage/framework/views/
+/storage/logs/*
+/storage/debugbar/
+/storage/app/public/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# PHP CS Fixer
+.php_cs.cache
+
+# Laravel Mix / Vite
+/public/hot
+/public/build/
+/_ide_helper.php
+
+# Docker
+docker-compose.override.yml
+
+# Tests
+.phpunit.result.cache
+
+# Compiled assets
+/public/mix-manifest.json

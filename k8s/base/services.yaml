@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: geoflow-laravel
+  namespace: geoflow
+  labels:
+    app: geoflow
+    component: laravel
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: geoflow
+    component: laravel
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geoflow-wordpress
+  namespace: geoflow
+  labels:
+    app: geoflow
+    component: wordpress
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+      name: fpm
+  selector:
+    app: geoflow
+    component: wordpress
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: geoflow
+  labels:
+    app: geoflow
+    component: redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    app: geoflow
+    component: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgbouncer
+  namespace: geoflow
+  labels:
+    app: geoflow
+    component: pgbouncer
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6432
+      targetPort: 6432
+      protocol: TCP
+      name: pgsql
+  selector:
+    app: geoflow
+    component: pgbouncer

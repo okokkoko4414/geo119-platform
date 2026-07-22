@@ -1,0 +1,14 @@
+{
+    "validation.required": "Trường này là bắt buộc.",
+    "validation.email": "Vui lòng nhập địa chỉ email hợp lệ.",
+    "validation.min": "Phải có ít nhất {min} ký tự.",
+    "validation.max": "Phải có tối đa {max} ký tự.",
+    "validation.numeric": "Phải là một số.",
+    "validation.integer": "Phải là số nguyên.",
+    "validation.url": "Phải là URL hợp lệ.",
+    "payment.failed": "Không thể xử lý thanh toán. Vui lòng thử lại.",
+    "payment.declined": "Thanh toán của bạn bị từ chối. Vui lòng thử phương thức khác.",
+    "translation.missing_key": "Khóa dịch \"{key}\" không tìm thấy cho ngôn ngữ \"{locale}\".",
+    "api.rate_limit": "Đã vượt quá giới hạn API. Thử lại sau {seconds} giây.",
+    "api.unavailable": "Dịch vụ tạm thời không khả dụng. Vui lòng thử lại sau."
+}

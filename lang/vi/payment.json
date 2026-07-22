@@ -1,0 +1,11 @@
+{
+    "subtotal": "Tạm tính",
+    "tax": "Thuế (10%)",
+    "total": "Tổng cộng",
+    "currency": "USD",
+    "confirm_message": "Bạn sẽ bị tính phí {amount} {currency}. Vui lòng kiểm tra trước khi xác nhận.",
+    "pay_now": "Thanh toán {amount}",
+    "processing": "Đang xử lý thanh toán...",
+    "success": "Thanh toán thành công!",
+    "failed": "Thanh toán thất bại. Vui lòng thử lại."
+}

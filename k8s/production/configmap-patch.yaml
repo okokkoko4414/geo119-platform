@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geoflow-config
+data:
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  LARAVEL_TELESCOPE_ENABLED: "false"
+  LOG_LEVEL: "warning"

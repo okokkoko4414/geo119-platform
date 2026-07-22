@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "title": "GEO119 Redis Hit Rate",
+    "uid": "geo119-redis-hit-rate",
+    "panels": [
+      {
+        "title": "Hit Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total)",
+            "legendFormat": "hit rate"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "used"
+          }
+        ]
+      },
+      {
+        "title": "Evicted Keys",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_evicted_keys_total"
+          }
+        ]
+      }
+    ]
+  }
+}

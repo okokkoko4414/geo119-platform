@@ -1,0 +1,208 @@
+services:
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: "${APP_KEY}"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: geoflow
+      DB_USERNAME: geoflow
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEEPSEEK_ENDPOINT: "${DEEPSEEK_ENDPOINT:-http://claude-local:8000}"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+    networks:
+      - geoflow
+
+  # Horizon queue worker (separate for dev observability)
+  horizon:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: php artisan horizon
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: geoflow
+      DB_USERNAME: geoflow
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEEPSEEK_ENDPOINT: "${DEEPSEEK_ENDPOINT:-http://claude-local:8000}"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+    networks:
+      - geoflow
+
+  # PostgreSQL 16 + pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: geoflow
+      POSTGRES_USER: geoflow
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geoflow -d geoflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    command: >
+      postgres
+      -c shared_preload_libraries=vector
+      -c max_connections=200
+      -c shared_buffers=256MB
+    networks:
+      - geoflow
+
+  # PgBouncer connection pooler
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: geoflow
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      DB_NAME: geoflow
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 25
+      RESERVE_POOL_SIZE: 5
+    ports:
+      - "6432:6432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - geoflow
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - geoflow
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    ports:
+      - "9090:9090"
+    networks:
+      - geoflow
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin}"
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - geoflow
+
+  # claude_local (DeepSeek inference endpoint)
+  claude-local:
+    image: ghcr.io/gstack/claude-local:latest
+    environment:
+      MODEL_NAME: "${CLAUDE_LOCAL_MODEL:-deepseek-v4-pro}"
+      MAX_TOKENS: "8192"
+      PORT: "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - claude_local_cache:/cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - geoflow
+
+  # WordPress (CMS)
+  wordpress:
+    image: wordpress:6-php8.4-fpm-alpine
+    environment:
+      WORDPRESS_DB_HOST: postgres
+      WORDPRESS_DB_USER: geoflow
+      WORDPRESS_DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      WORDPRESS_DB_NAME: geoflow
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8080');
+        define('WP_SITEURL', 'http://localhost:8080/wp');
+    volumes:
+      - ./wordpress:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - geoflow
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  claude_local_cache:
+
+networks:
+  geoflow:
+    driver: bridge

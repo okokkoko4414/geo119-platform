@@ -1,0 +1,210 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: '8.4'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Stage 1: Lint
+  lint:
+    name: Lint (PHP_CodeSniffer + Laravel Pint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer
+      - run: composer install --no-progress --no-interaction
+      - run: ./vendor/bin/pint --test
+      - run: ./vendor/bin/phpcs --standard=PSR12 app/
+
+  # Stage 2: No-Chinese-Character Enforcement
+  no-chinese:
+    name: No Chinese Characters (Iron Law)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for Chinese characters in views
+        run: |
+          echo "Scanning resources/views/ and wordpress/ for Chinese characters..."
+          FOUND=$(grep -rP '[\x{4e00}-\x{9fff}]' resources/views/ wordpress/wp-content/themes/geo119/ 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Chinese characters found. All UI must be English (default) or Vietnamese."
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "No Chinese characters found. Clean."
+      - name: Check for Chinese characters in JS/CSS
+        run: |
+          FOUND=$(grep -rP '[\x{4e00}-\x{9fff}]' resources/js/ resources/css/ 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Chinese characters found in JS/CSS."
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "No Chinese characters in JS/CSS. Clean."
+
+  # Stage 4: Static Analysis
+  static-analysis:
+    name: Static Analysis (PHPStan level max)
+    needs: [lint, no-chinese]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer
+      - run: composer install --no-progress --no-interaction
+      - run: ./vendor/bin/phpstan analyse --level=max --no-progress
+
+  # Stage 5: Tests
+  test:
+    name: Unit + Feature Tests
+    needs: [lint, no-chinese]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: geoflow_test
+          POSTGRES_USER: geoflow
+          POSTGRES_PASSWORD: test_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pgsql, redis
+          tools: composer
+      - run: composer install --no-progress --no-interaction
+      - run: cp .env.ci .env
+      - run: php artisan key:generate
+      - run: php artisan migrate --force
+      - run: php artisan test --parallel --coverage-text
+
+  # Stage 6: Docker Build + Push
+  docker:
+    name: Docker Build + Push
+    needs: [static-analysis, test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=,format=short
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Stage 7: Deploy + Health Check + Rollback
+  deploy:
+    name: Deploy to ${{ matrix.environment }}
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: dev
+            namespace: geo119-dev
+          - environment: staging
+            namespace: geo119-staging
+    environment:
+      name: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets[format('KUBECONFIG_{0}', matrix.environment)] }}" \
+            | base64 -d > $HOME/.kube/config
+      - name: Apply K8s manifests (kustomize)
+        run: kubectl apply -k k8s/${{ matrix.environment }}/
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/geoflow-laravel -n ${{ matrix.namespace }} --timeout=5m
+      - name: Health check
+        id: healthcheck
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i/3..."
+            if curl -sf -o /dev/null -w '%{http_code}' \
+              "https://${{ matrix.environment }}.geo119.com/health" | grep -q 200; then
+              echo "Health check passed."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Health check failed after 3 retries."
+          exit 1
+      - name: Trigger rollback on failure
+        if: failure()
+        run: |
+          echo "Health check failed. Rolling back..."
+          kubectl rollout undo deployment/geoflow-laravel -n ${{ matrix.namespace }}
+          kubectl rollout undo deployment/geoflow-wordpress -n ${{ matrix.namespace }}
+          kubectl rollout undo deployment/geoflow-horizon -n ${{ matrix.namespace }}
+          kubectl rollout status deployment/geoflow-laravel -n ${{ matrix.namespace }} --timeout=3m
+
+          # Notify PagerDuty
+          curl -X POST "https://events.pagerduty.com/v2/enqueue" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "routing_key": "${{ secrets.PAGERDUTY_ROUTING_KEY }}",
+              "event_action": "trigger",
+              "payload": {
+                "summary": "Rollback triggered for ${{ matrix.environment }} after failed health check",
+                "source": "github-actions",
+                "severity": "critical",
+                "custom_details": {
+                  "environment": "${{ matrix.environment }}",
+                  "commit": "${{ github.sha }}",
+                  "run": "${{ github.run_id }}"
+                }
+              }
+            }'

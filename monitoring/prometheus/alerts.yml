@@ -1,0 +1,95 @@
+groups:
+  - name: geoflow-critical
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Error rate > 1%"
+          description: "{{ $labels.component }} error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+          pagerduty_severity: critical
+          pagerduty_routing_key: "{{ $externalLabels.pagerduty_routing_key }}"
+
+      - alert: QueueDepthHigh
+        expr: horizon_queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue depth > 1000 jobs"
+          description: "Queue {{ $labels.queue }} has {{ $value }} pending jobs."
+          pagerduty_severity: warning
+
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API P95 latency > 2s"
+          description: "{{ $labels.route }} P95 latency is {{ $value }}s."
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: postgres_active_connections / postgres_max_connections > 0.9
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DB connection pool near exhaustion"
+          description: "{{ $value | humanizePercentage }} of available connections in use."
+
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod crash loop detected"
+          description: "Pod {{ $labels.pod }} is restarting."
+
+      - alert: RedisConnectionFailure
+        expr: redis_connected_clients < 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis has zero connected clients"
+          description: "Redis instance may be down or unreachable."
+
+      - alert: PgBouncerPoolExhausted
+        expr: pgbouncer_active_connections / pgbouncer_max_connections > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PgBouncer pool > 85% utilized"
+          description: "{{ $value | humanizePercentage }} of PgBouncer connections in use."
+
+      - alert: CertificateExpiry
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 14
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "TLS certificate expiring within 14 days"
+          description: "Certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}."
+
+      - alert: CircuitBreakerOpen
+        expr: claude_local_circuit_breaker_state == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "claude_local circuit breaker is OPEN"
+          description: "Circuit breaker opened at {{ $labels.opened_at }}. All claude_local calls are failing fast."
+
+      - alert: RollbackTriggered
+        expr: increase(kube_deployment_status_observed_generation[5m]) > 2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Possible deployment rollback in progress"
+          description: "Deployment {{ $labels.deployment }} has changed generation multiple times."

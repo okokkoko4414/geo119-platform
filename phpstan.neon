@@ -1,0 +1,11 @@
+parameters:
+    level: max
+    paths:
+        - app/
+    excludePaths:
+        - app/wordpress/*
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    checkUninitializedProperties: true
+    checkExplicitMixedMissingReturn: false
+    tipsOfTheDay: false

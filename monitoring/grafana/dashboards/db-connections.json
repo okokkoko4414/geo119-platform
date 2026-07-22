@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "title": "GEO119 DB Connections",
+    "uid": "geo119-db-connections",
+    "panels": [
+      {
+        "title": "Active Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pgbouncer_pools_active_connections",
+            "legendFormat": "active"
+          }
+        ]
+      },
+      {
+        "title": "Connection Pool Usage",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "pgbouncer_pools_active_connections / pgbouncer_pools_max_connections * 100"
+          }
+        ]
+      },
+      {
+        "title": "Waiting Clients",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pgbouncer_pools_waiting_clients",
+            "legendFormat": "waiting"
+          }
+        ]
+      }
+    ]
+  }
+}

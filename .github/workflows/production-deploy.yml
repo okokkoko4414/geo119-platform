@@ -1,0 +1,76 @@
+name: Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit SHA or tag to deploy'
+        required: true
+        default: 'latest'
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > $HOME/.kube/config
+
+      - name: Deploy canary (10%)
+        run: |
+          kubectl apply -f k8s/production/
+          kubectl set image deployment/geoflow-laravel \
+            laravel=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.sha || github.ref_name }} \
+            -n geoflow
+
+      - name: Canary health check (5 min)
+        run: |
+          for i in $(seq 1 30); do
+            STATUS=$(curl -sf -o /dev/null -w '%{http_code}' \
+              "https://geo119.com/health")
+            if [ "$STATUS" = "200" ]; then
+              echo "Canary healthy after ${i}0s."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Canary health check failed. Rolling back."
+          kubectl rollout undo deployment/geoflow-laravel -n geoflow
+          exit 1
+
+      - name: Full rollout
+        run: |
+          kubectl scale deployment/geoflow-laravel --replicas=3 -n geoflow
+          kubectl rollout status deployment/geoflow-laravel -n geoflow --timeout=3m
+
+      - name: Final health check
+        run: |
+          sleep 10
+          curl -sf "https://geo119.com/health" | grep -q '"status":"ok"'
+
+      - name: Notify PagerDuty (success)
+        if: success()
+        run: |
+          curl -X POST "https://events.pagerduty.com/v2/enqueue" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "routing_key": "${{ secrets.PAGERDUTY_ROUTING_KEY }}",
+              "event_action": "trigger",
+              "payload": {
+                "summary": "Production deploy successful: ${{ github.event.inputs.sha || github.ref_name }}",
+                "source": "github-actions",
+                "severity": "info"
+              }
+            }'

@@ -1,0 +1,36 @@
+name: Stale Stack Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * 1' # Every Monday 8am
+
+jobs:
+  stale-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for disallowed dependencies (Python/FastAPI/Next.js/MySQL)
+        run: |
+          DISALLOWED=("fastapi" "next" "next.js" "mysql" "qwen" "langchain")
+          FOUND=""
+          for dep in "${DISALLOWED[@]}"; do
+            if grep -ri "$dep" composer.json package.json 2>/dev/null; then
+              FOUND="$FOUND $dep"
+            fi
+          done
+          if [ -n "$FOUND" ]; then
+            echo "::error::Stale stack dependencies detected:$FOUND"
+            exit 1
+          fi
+          echo "No stale stack dependencies found"
+
+      - name: Check for disallowed tech references in docs
+        run: |
+          if grep -rPn '(?i)(fastapi|next\.js|nextjs|mysql|qwen|langchain)' deliverables/ 2>/dev/null; then
+            echo "::warning::Stale stack references found in documentation"
+          fi
