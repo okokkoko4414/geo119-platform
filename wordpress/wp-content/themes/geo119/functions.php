@@ -22,8 +22,58 @@ if (! defined('ABSPATH')) {
 define('GEO119_THEME_VERSION', '1.0.0');
 define('GEO119_THEME_DIR', get_template_directory());
 define('GEO119_THEME_URL', get_template_directory_uri());
-define('GEO119_SUPPORTED_LOCALES', ['en', 'vi']);
 define('GEO119_DEFAULT_LOCALE', 'en');
+define('GEO119_SUPPORTED_LOCALES', [
+    // Tier 1 (30): Premium
+    'en', 'zh', 'es', 'ar', 'pt', 'ru', 'fr', 'de', 'ja', 'ko',
+    'it', 'nl', 'pl', 'sv', 'da', 'fi', 'nb', 'cs', 'el', 'hu',
+    'ro', 'sk', 'uk', 'he', 'tr', 'vi', 'th', 'id', 'ms', 'fil',
+    // Tier 2 (35): Beta
+    'hi', 'bn', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa', 'ur',
+    'fa', 'sw', 'am', 'ha', 'yo', 'ig', 'zu', 'af', 'bg', 'hr',
+    'et', 'lt', 'lv', 'sl', 'sr', 'is', 'mk', 'sq', 'ka', 'mn',
+    'ne', 'si', 'kk', 'uz', 'az',
+    // Tier 3 (5): Community
+    'lo', 'km', 'my', 'ps', 'ti',
+]);
+
+define('GEO119_LANGUAGE_NAMES', [
+    'en'  => 'English',              'zh'  => '简体中文',
+    'es'  => 'Español',              'ar'  => 'العربية',
+    'pt'  => 'Português',            'ru'  => 'Русский',
+    'fr'  => 'Français',             'de'  => 'Deutsch',
+    'ja'  => '日本語',               'ko'  => '한국어',
+    'it'  => 'Italiano',             'nl'  => 'Nederlands',
+    'pl'  => 'Polski',               'sv'  => 'Svenska',
+    'da'  => 'Dansk',                'fi'  => 'Suomi',
+    'nb'  => 'Norsk',                'cs'  => 'Čeština',
+    'el'  => 'Ελληνικά',             'hu'  => 'Magyar',
+    'ro'  => 'Română',               'sk'  => 'Slovenčina',
+    'uk'  => 'Українська',           'he'  => 'עברית',
+    'tr'  => 'Türkçe',               'vi'  => 'Tiếng Việt',
+    'th'  => 'ไทย',                  'id'  => 'Bahasa Indonesia',
+    'ms'  => 'Bahasa Melayu',        'fil' => 'Filipino',
+    'hi'  => 'हिन्दी',              'bn'  => 'বাংলা',
+    'ta'  => 'தமிழ்',               'te'  => 'తెలుగు',
+    'mr'  => 'मराठी',               'gu'  => 'ગુજરાતી',
+    'kn'  => 'ಕನ್ನಡ',              'ml'  => 'മലയാളം',
+    'pa'  => 'ਪੰਜਾਬੀ',              'ur'  => 'اردو',
+    'fa'  => 'فارسی',               'sw'  => 'Kiswahili',
+    'am'  => 'አማርኛ',               'ha'  => 'Hausa',
+    'yo'  => 'Yorùbá',              'ig'  => 'Igbo',
+    'zu'  => 'isiZulu',             'af'  => 'Afrikaans',
+    'bg'  => 'Български',           'hr'  => 'Hrvatski',
+    'et'  => 'Eesti',                'lt'  => 'Lietuvių',
+    'lv'  => 'Latviešu',            'sl'  => 'Slovenščina',
+    'sr'  => 'Српски',              'is'  => 'Íslenska',
+    'mk'  => 'Македонски',          'sq'  => 'Shqip',
+    'ka'  => 'ქართული',             'mn'  => 'Монгол',
+    'ne'  => 'नेपाली',              'si'  => 'සිංහල',
+    'kk'  => 'Қазақша',             'uz'  => 'Oʻzbekcha',
+    'az'  => 'Azərbaycanca',         'lo'  => 'ລາວ',
+    'km'  => 'ភាសាខ្មែរ',          'my'  => 'မြန်မာဘာသာ',
+    'ps'  => 'پښتو',                'ti'  => 'ትግርኛ',
+]);
 
 /**
  * Detect current locale from URL, cookie, or Accept-Language header.
@@ -46,17 +96,14 @@ function geo119_detect_locale(): string
         }
     }
 
-    // 3. Accept-Language header
+    // 3. Accept-Language header — match first supported locale
     if (! empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
         $locales = explode(',', (string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
         foreach ($locales as $locale_str) {
             $part = trim(strtok($locale_str, ';'));
             $lang = substr($part, 0, 2);
-            if ($lang === 'vi') {
-                return 'vi';
-            }
-            if ($lang === 'en') {
-                return 'en';
+            if (in_array($lang, GEO119_SUPPORTED_LOCALES, true)) {
+                return $lang;
             }
         }
     }
@@ -70,18 +117,25 @@ function geo119_detect_locale(): string
  */
 function geo119_filter_locale(string $locale): string
 {
-    // Respect admin area
     if (is_admin()) {
         return $locale;
     }
 
     $detected = geo119_detect_locale();
 
-    if ($detected === 'vi') {
-        return 'vi';
+    if (in_array($detected, GEO119_SUPPORTED_LOCALES, true)) {
+        return $detected;
     }
 
-    return 'en';
+    return GEO119_DEFAULT_LOCALE;
+}
+
+/**
+ * Return the native name for a supported locale code.
+ */
+function geo119_language_display_name(string $code): string
+{
+    return GEO119_LANGUAGE_NAMES[$code] ?? $code;
 }
 add_filter('locale', 'geo119_filter_locale');
 
@@ -108,13 +162,14 @@ add_action('init', 'geo119_set_locale_cookie');
  */
 function geo119_add_rewrite_rules(): void
 {
+    $locale_pattern = implode('|', GEO119_SUPPORTED_LOCALES);
     add_rewrite_rule(
-        '^(en|vi)/(.+?)/?$',
+        '^(' . $locale_pattern . ')/(.+?)/?$',
         'index.php?geo119_locale=$matches[1]&pagename=$matches[2]',
         'top'
     );
     add_rewrite_rule(
-        '^(en|vi)/?$',
+        '^(' . $locale_pattern . ')/?$',
         'index.php?geo119_locale=$matches[1]',
         'top'
     );
@@ -202,9 +257,11 @@ function geo119_enqueue_assets(): void
     );
 
     wp_localize_script('geo119-app', 'geo119Data', [
-        'locale'  => geo119_detect_locale(),
-        'restUrl' => rest_url('wp/v2/'),
-        'nonce'   => wp_create_nonce('wp_rest'),
+        'locale'           => geo119_detect_locale(),
+        'supportedLocales' => GEO119_SUPPORTED_LOCALES,
+        'localeNames'      => GEO119_LANGUAGE_NAMES,
+        'restUrl'          => rest_url('wp/v2/'),
+        'nonce'            => wp_create_nonce('wp_rest'),
     ]);
 }
 add_action('wp_enqueue_scripts', 'geo119_enqueue_assets');
@@ -218,7 +275,7 @@ function geo119_register_rest_fields(): void
         'get_callback' => fn (array $object): string => get_post_meta($object['id'], '_geo119_locale', true) ?: 'en',
         'schema'        => [
             'type'        => 'string',
-            'description' => 'Content locale (en, vi)',
+            'description' => 'Content locale (ISO 639-1)',
         ],
     ]);
 
