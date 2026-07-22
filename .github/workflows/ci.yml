@@ -104,7 +104,7 @@ jobs:
       - run: cp .env.ci .env
       - run: php artisan key:generate
       - run: php artisan migrate --force
-      - run: php artisan test --parallel --coverage-text
+      - run: php artisan test --stop-on-failure
 
   # Stage 6: Docker Build + Push
   docker:
