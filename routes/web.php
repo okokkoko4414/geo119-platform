@@ -15,6 +15,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/health', HealthController::class)->name('health');
 
+// Fallback routes for {locale?} prefix when locale is absent.
+// The optional prefix does not match "/dashboard/analytics" — only "/en/dashboard/analytics".
+// These mirror the locale-group routes so the non-locale path resolves.
+Route::middleware('web')->group(function (): void {
+    Route::get('/dashboard/analytics', [AnalyticsController::class, 'index'])->name('analytics.dashboard.fallback');
+    Route::get('/dashboard/optimizations/{id}', [OptimizationResultsController::class, 'show'])->name('optimizations.show.fallback');
+    Route::get('/component-gallery', [ComponentGalleryController::class, 'index'])->name('component-gallery.fallback');
+    Route::get('/payment', [PaymentController::class, 'show'])->name('payment.show.fallback');
+    Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process.fallback');
+});
+
 // Static routes that must not be consumed by {locale?} prefix
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::post('/language/switch', [LanguageController::class, 'switch'])->name('language.switch');
