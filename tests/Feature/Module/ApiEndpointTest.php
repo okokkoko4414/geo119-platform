@@ -35,6 +35,6 @@ test('batch optimize endpoint requires auth or proper payload', function (): voi
 });
 
 test('event tracking endpoint rejects empty payload', function (): void {
-    $response = postJson('/e/track', []);
+    $response = postJson('/api/e/track', []);
     $response->assertStatus(422);
 });

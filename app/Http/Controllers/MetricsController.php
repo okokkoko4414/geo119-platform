@@ -26,6 +26,7 @@ class MetricsController extends Controller
             'closed' => 0,
             'half-open' => 1,
             'open' => 2,
+            default => -1,
         };
         $metrics[] = "claude_local_circuit_breaker_state {$state}";
 
