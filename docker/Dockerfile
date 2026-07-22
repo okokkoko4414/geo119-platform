@@ -10,7 +10,8 @@ FROM node:22-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-COPY resources/css resources/js tailwind.config.js vite.config.js ./
+COPY resources ./resources
+COPY tailwind.config.js vite.config.js ./
 RUN npm run build
 
 # Stage 3: Production PHP-FPM + Nginx
