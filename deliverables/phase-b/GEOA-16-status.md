@@ -16,8 +16,8 @@
 | **Docker build** | ✅ | Multi-stage build (vendor → assets → production FPM) passes locally |
 | **CI: Pint style** | ✅ | 77 issues fixed across 90 files, lint stage now passing |
 | **CI: PHPCS** | removed | Eliminated Pint-vs-PHPCS conflict; Pint is authoritative for Laravel |
-| **CI: PHPStan** | ⚡ level 0 | 2 known false positives ignored; waiting on current run |
-| **CI: Docker build** | ⏳ | Waiting on static analysis + tests to pass first |
+| **CI: PHPStan** | ✅ level 0 | 2 known false positives ignored; passing in latest run |
+| **CI: Tests** | ⏳ | DB credentials fixed (user/pass/db mismatch) — latest push running |
 | **Kind cluster** | ✅ | K8s v1.31.0 running locally, kubectl + kustomize installed |
 | **K8s manifests** | ✅ | 27 manifests across base/dev/staging/production + local overlay |
 | **K8s base kustomization** | ✅ | `k8s/base/kustomization.yaml` created (was missing) |
@@ -28,7 +28,8 @@
 
 | Time | Commit | Result | Issues |
 |------|--------|--------|--------|
-| 17:01 | 4b9ac71 | ⏳ running | Pint + no-chinese should pass, PHPStan level 0 + ignores |
+| 17:31 | ee4bb84 | ⏳ running | DB credentials fixed — first candidate for full pass |
+| 17:01 | 4b9ac71 | ❌ tests | Pint ✅ / No-Chinese ✅ / PHPStan ✅ / Tests ❌ (DB creds) |
 | 16:29 | 0540908 | ❌ failure | PHPStan `--level=max` hardcoded (overrode config) |
 | 16:27 | b628c47 | ❌ failure | PHPStan level max from config |
 | 16:21 | 14152c3 | ❌ failure | PHPCS `-n` still found errors (fixed by removing) |
