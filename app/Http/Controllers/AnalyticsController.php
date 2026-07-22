@@ -243,19 +243,20 @@ final class AnalyticsController extends Controller
             ->whereBetween(DB::raw('hour::date'), [$from, $to])
             ->sum('event_count');
 
-        $languages = collect($coreLanguages)->map(function (string $lang) use ($from, $to): array {
-            $impressions = (int) DB::table('event_aggregates_hourly')
-                ->where('locale', $lang)
-                ->where('event_type', 'impression')
-                ->whereBetween(DB::raw('hour::date'), [$from, $to])
-                ->sum('event_count');
+        $rows = DB::table('event_aggregates_hourly')
+            ->selectRaw("locale, event_type, SUM(event_count) AS total")
+            ->whereIn('locale', $coreLanguages)
+            ->whereIn('event_type', ['impression', 'click'])
+            ->whereBetween(DB::raw('hour::date'), [$from, $to])
+            ->groupBy('locale', 'event_type')
+            ->get()
+            ->groupBy('locale');
 
-            $clicks = (int) DB::table('event_aggregates_hourly')
-                ->where('locale', $lang)
-                ->where('event_type', 'click')
-                ->whereBetween(DB::raw('hour::date'), [$from, $to])
-                ->sum('event_count');
+        $languages = collect($coreLanguages)->map(function (string $lang) use ($rows): array {
+            $byType = $rows->get($lang, collect())->groupBy('event_type');
 
+            $impressions = (int) ($byType->get('impression')?->sum('total') ?? 0);
+            $clicks = (int) ($byType->get('click')?->sum('total') ?? 0);
             $ctr = $impressions > 0 ? round($clicks / $impressions * 100, 2) : 0.0;
 
             return [

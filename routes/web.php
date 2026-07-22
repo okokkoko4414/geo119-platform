@@ -23,9 +23,9 @@ Route::get('/health', HealthController::class)->name('health');
 Route::middleware('web')->group(function (): void {
     // Auth
     Route::get('/signup', [RegisterController::class, 'show'])->name('signup.fallback');
-    Route::post('/signup', [RegisterController::class, 'store'])->name('signup.store.fallback');
+    Route::post('/signup', [RegisterController::class, 'store'])->middleware('throttle:3,1')->name('signup.store.fallback');
     Route::get('/login', [LoginController::class, 'show'])->name('login.fallback');
-    Route::post('/login', [LoginController::class, 'store'])->name('login.store.fallback');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1')->name('login.store.fallback');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout.fallback');
 
     // Protected
@@ -58,9 +58,9 @@ Route::prefix('{locale?}')->middleware('web')->group(function (): void {
 
     // Auth
     Route::get('/signup', [RegisterController::class, 'show'])->name('signup');
-    Route::post('/signup', [RegisterController::class, 'store'])->name('signup.store');
+    Route::post('/signup', [RegisterController::class, 'store'])->middleware('throttle:3,1')->name('signup.store');
     Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
     // Protected

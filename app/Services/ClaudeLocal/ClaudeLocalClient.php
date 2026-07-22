@@ -81,6 +81,7 @@ class ClaudeLocalClient
                 $usage['prompt_tokens'] ?? 0,
                 $usage['completion_tokens'] ?? 0,
                 $latencyMs,
+                $options['locale'] ?? null,
             );
 
             return [
@@ -113,6 +114,7 @@ class ClaudeLocalClient
             ['role' => 'user', 'content' => $userMessage],
         ], [
             'temperature' => 0.3,
+            'locale' => $targetLocale,
         ]);
     }
 

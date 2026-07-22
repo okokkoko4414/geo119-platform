@@ -27,7 +27,7 @@ class CostTracker
         $this->redis = Redis::connection('cache');
     }
 
-    public function record(string $model, int $inputTokens, int $outputTokens, int $latencyMs): void
+    public function record(string $model, int $inputTokens, int $outputTokens, int $latencyMs, ?string $locale = null): void
     {
         $costCents = (int) ceil(
             ($inputTokens / 1_000_000) * self::COST_PER_1M_INPUT
@@ -43,7 +43,7 @@ class CostTracker
             'latency_ms' => $latencyMs,
             'cost_cents' => $costCents,
             'source_text_hash' => '',
-            'locale' => substr($this->name, 0, 5),
+            'locale' => $locale,
             'log_date' => now()->toDateString(),
         ]);
 
