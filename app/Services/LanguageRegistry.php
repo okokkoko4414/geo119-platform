@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Language;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 final class LanguageRegistry
@@ -142,18 +143,20 @@ final class LanguageRegistry
 
     public function boot(): void
     {
-        Language::where('is_active', true)->update(['is_active' => false]);
+        DB::transaction(function (): void {
+            Language::where('is_active', true)->update(['is_active' => false]);
 
-        foreach ($this->definitions as $def) {
-            Language::updateOrCreate(
-                ['code' => $def['code']],
-                [
-                    'name' => $def['name'],
-                    'native_name' => $def['native_name'],
-                    'tier' => $def['tier'],
-                    'is_active' => true,
-                ]
-            );
-        }
+            foreach ($this->definitions as $def) {
+                Language::updateOrCreate(
+                    ['code' => $def['code']],
+                    [
+                        'name' => $def['name'],
+                        'native_name' => $def['native_name'],
+                        'tier' => $def['tier'],
+                        'is_active' => true,
+                    ]
+                );
+            }
+        });
     }
 }

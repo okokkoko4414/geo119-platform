@@ -174,8 +174,12 @@ final class BatchOptimizer
                     }
                 });
 
+                $optimizedContent = is_array($aiResponse['optimized'] ?? null)
+                    ? ($aiResponse['optimized']['optimized_content'] ?? $aiResponse['content'] ?? '')
+                    : ($aiResponse['content'] ?? '');
+
                 $response = new DeepSeekResponse(
-                    optimizedText: $aiResponse['optimized']['optimized_content'] ?? $aiResponse['content'] ?? '',
+                    optimizedText: $optimizedContent,
                     inputTokens: (int) ($aiResponse['input_tokens'] ?? 0),
                     outputTokens: (int) ($aiResponse['output_tokens'] ?? 0),
                     model: $aiResponse['model'] ?? 'deepseek-chat',

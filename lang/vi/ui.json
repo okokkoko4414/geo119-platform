@@ -116,7 +116,7 @@
     "ui.payment.processing": "Đang xử lý thanh toán...",
     "ui.payment.success": "Thanh toán thành công",
     "ui.payment.error": "Thanh toán thất bại",
-    "ui.payment.method.stripe": "Thẻ tín dụng/Ghi nợ",
+    "ui.payment.method.stripe": "Thẻ tín dụng\/Ghi nợ",
     "ui.payment.method.paypal": "PayPal",
     "ui.payment.method.momo": "Ví MoMo",
     "ui.payment.method.vnpay": "VNPay",
@@ -180,5 +180,6 @@
     "ui.footer.copyright": "© 2026 GEO119. Đã đăng ký bản quyền.",
     "ui.footer.privacy": "Chính sách Bảo mật",
     "ui.footer.terms": "Điều khoản Dịch vụ",
-    "ui.footer.contact": "Liên hệ"
+    "ui.footer.contact": "Liên hệ",
+    "hello": "Xin chao"
 }

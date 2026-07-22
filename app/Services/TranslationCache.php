@@ -69,20 +69,31 @@ class TranslationCache
 
     public function forgetLocale(string $locale): void
     {
-        $pattern = self::PREFIX."{$locale}:*";
-        $keys = $this->redis->keys($pattern);
-        if (! empty($keys)) {
-            // PhpRedis may return keys with the connection prefix included.
-            // Strip the prefix so del() doesn't double-prefix.
-            $prefix = (string) config('database.redis.options.prefix', '');
-            if ($prefix !== '' && str_starts_with($keys[0], $prefix)) {
-                $keys = array_map(
-                    fn (string $key): string => substr($key, strlen($prefix)),
-                    $keys
-                );
-            }
-            $this->redis->del(...$keys);
-        }
+        // Include the Redis connection prefix so SCAN matches stored keys
+        // (DEL inside the Lua script also runs directly on Redis, same prefix context)
+        $prefix = (string) config('database.redis.options.prefix', '');
+        $pattern = $prefix.self::PREFIX."{$locale}:*";
+
+        // Use Lua SCAN instead of KEYS to avoid blocking Redis
+        $script = <<<'LUA'
+            local cursor = '0'
+            local keys = {}
+            repeat
+                local result = redis.call('SCAN', cursor, 'MATCH', ARGV[1], 'COUNT', 100)
+                cursor = result[1]
+                for _, key in ipairs(result[2]) do
+                    table.insert(keys, key)
+                end
+            until cursor == '0'
+
+            if #keys > 0 then
+                redis.call('DEL', unpack(keys))
+            end
+
+            return #keys
+        LUA;
+
+        $this->redis->eval($script, 0, $pattern);
     }
 
     public function warm(string $locale, string $namespace, string $key, string $value): void

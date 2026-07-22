@@ -23,4 +23,14 @@ final class OptimizationResultsController extends Controller
             'result' => $result,
         ]);
     }
+
+    /**
+     * GET /dashboard/optimizations/{id} (no locale prefix)
+     *
+     * Delegates to show() with null locale.
+     */
+    public function showFallback(string $id): View
+    {
+        return $this->show(null, $id);
+    }
 }

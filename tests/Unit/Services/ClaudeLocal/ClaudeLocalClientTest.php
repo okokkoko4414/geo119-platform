@@ -5,14 +5,34 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\ClaudeLocal;
 
 use App\Services\ClaudeLocal\ClaudeLocalClient;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redis;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     config(['services.deepseek.endpoint' => 'http://test-endpoint:8080']);
     config(['services.deepseek.api_key' => 'test-key']);
 
     $this->client = new ClaudeLocalClient;
+});
+
+afterEach(function () {
+    $redis = Redis::connection('cache');
+    $redis->del(
+        'circuit_breaker:default:failures',
+        'circuit_breaker:default:opened_at',
+        'rate_limiter:default:tokens',
+        'rate_limiter:default:last_refill',
+        'cost_tracker:default:requests',
+        'cost_tracker:default:input_tokens',
+        'cost_tracker:default:output_tokens',
+        'cost_tracker:default:cost_cents',
+        'cost_tracker:default:latency_ms',
+        'cost_tracker:default:recent',
+    );
 });
 
 test('chat sends request and parses response', function () {
@@ -37,23 +57,21 @@ test('chat sends request and parses response', function () {
 });
 
 test('chat fails when circuit breaker is open', function () {
-    $this->client->getCircuitBreaker()->recordFailure();
-    $this->client->getCircuitBreaker()->recordFailure();
-    $this->client->getCircuitBreaker()->recordFailure();
-    $this->client->getCircuitBreaker()->recordFailure();
-    $this->client->getCircuitBreaker()->recordFailure();
+    $cb = $this->client->getCircuitBreaker();
+    $cb->recordFailure();
+    $cb->recordFailure();
+    $cb->recordFailure();
+    $cb->recordFailure();
+    $cb->recordFailure();
 
-    expect($this->client->getCircuitBreaker()->isOpen())->toBeTrue();
+    expect($cb->isOpen())->toBeTrue();
     expect(fn () => $this->client->chat([['role' => 'user', 'content' => 'Hi']]))
         ->toThrow(\RuntimeException::class, 'circuit breaker is open');
 });
 
 test('chat fails when rate limited', function () {
-    $limiter = $this->client->getRateLimiter();
-    // Exhaust all tokens for a rate limiter with 100 max and 100/60 per sec refill
-    $ref = new \ReflectionProperty($limiter, 'tokens');
-    $ref->setAccessible(true);
-    $ref->setValue($limiter, 0.0);
+    // Set Redis token count to 0 directly to simulate exhaustion
+    Redis::connection('cache')->set('rate_limiter:default:tokens', 0.0);
 
     expect(fn () => $this->client->chat([['role' => 'user', 'content' => 'Hi']]))
         ->toThrow(\RuntimeException::class, 'rate limit exceeded');

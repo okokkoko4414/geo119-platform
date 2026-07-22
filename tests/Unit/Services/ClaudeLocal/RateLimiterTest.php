@@ -5,9 +5,17 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\ClaudeLocal;
 
 use App\Services\ClaudeLocal\RateLimiter;
+use Illuminate\Support\Facades\Redis;
 
 beforeEach(function () {
-    $this->limiter = new RateLimiter(maxTokens: 10, refillRate: 10.0);
+    $this->limiter = new RateLimiter('test', maxTokens: 10, refillRate: 10.0);
+});
+
+afterEach(function () {
+    Redis::connection('cache')->del(
+        'rate_limiter:test:tokens',
+        'rate_limiter:test:last_refill',
+    );
 });
 
 test('allows requests up to capacity', function () {
@@ -33,7 +41,7 @@ test('getAvailableTokens returns current balance', function () {
 });
 
 test('refill restores tokens over time', function () {
-    $fastRefill = new RateLimiter(maxTokens: 5, refillRate: 1000.0);
+    $fastRefill = new RateLimiter('fast', maxTokens: 5, refillRate: 1000.0);
 
     for ($i = 0; $i < 5; $i++) {
         $fastRefill->tryAcquire();
@@ -42,12 +50,16 @@ test('refill restores tokens over time', function () {
 
     usleep(10_000);
     expect($fastRefill->getAvailableTokens())->toBeGreaterThan(0.0);
+
+    Redis::connection('cache')->del('rate_limiter:fast:tokens', 'rate_limiter:fast:last_refill');
 });
 
 test('default constructor creates valid limiter', function () {
-    $limiter = new RateLimiter;
+    $limiter = new RateLimiter('default-test');
     expect($limiter->getAvailableTokens())->toBe(500.0)
         ->and($limiter->tryAcquire())->toBeTrue();
+
+    Redis::connection('cache')->del('rate_limiter:default-test:tokens', 'rate_limiter:default-test:last_refill');
 });
 
 test('does not exceed max tokens', function () {

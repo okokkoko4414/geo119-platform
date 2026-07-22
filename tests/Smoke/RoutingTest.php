@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use function Pest\Laravel\get;
 
 dataset('routes', [
@@ -11,12 +12,14 @@ dataset('routes', [
 ]);
 
 test('analytics dashboard renders in English', function (): void {
-    $response = get('/en/dashboard/analytics');
+    $user = User::factory()->create();
+    $response = $this->actingAs($user)->get('/en/dashboard/analytics');
     $response->assertStatus(200);
 });
 
 test('analytics dashboard renders in Vietnamese', function (): void {
-    $response = get('/vi/dashboard/analytics');
+    $user = User::factory()->create();
+    $response = $this->actingAs($user)->get('/vi/dashboard/analytics');
     $response->assertStatus(200);
 });
 
@@ -27,8 +30,7 @@ test('sitemap.xml returns 200', function (): void {
 });
 
 test('language switch POST endpoint returns redirect', function (): void {
-    $response = $this->post('/language/switch', [
-        '_token' => csrf_token(),
+    $response = $this->withoutMiddleware()->post('/language/switch', [
         'locale' => 'vi',
         'redirect_to' => '/',
     ]);

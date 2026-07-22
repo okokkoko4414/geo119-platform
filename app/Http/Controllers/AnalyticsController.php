@@ -50,22 +50,102 @@ final class AnalyticsController extends Controller
     }
 
     /**
+     * GET /api/analytics/impressions
+     *
+     * Returns per-language impression totals, optionally filtered by ?locale=X.
+     */
+    public function impressions(Request $request): JsonResponse
+    {
+        $query = DB::table('event_aggregates_hourly')
+            ->selectRaw('locale, SUM(event_count) AS total')
+            ->where('event_type', 'impression')
+            ->groupBy('locale')
+            ->orderByDesc('total');
+
+        if ($locale = $request->query('locale')) {
+            $query->where('locale', $locale);
+        }
+
+        return response()->json($query->get());
+    }
+
+    /**
+     * GET /api/analytics/clicks
+     *
+     * Returns per-language click totals, optionally filtered by ?locale=X.
+     */
+    public function clicks(Request $request): JsonResponse
+    {
+        $query = DB::table('event_aggregates_hourly')
+            ->selectRaw('locale, SUM(event_count) AS total')
+            ->where('event_type', 'click')
+            ->groupBy('locale')
+            ->orderByDesc('total');
+
+        if ($locale = $request->query('locale')) {
+            $query->where('locale', $locale);
+        }
+
+        return response()->json($query->get());
+    }
+
+    /**
+     * GET /api/analytics/ctr
+     *
+     * Returns per-language CTR, optionally filtered by ?locale=X.
+     */
+    public function ctr(Request $request): JsonResponse
+    {
+        $query = DB::table('event_aggregates_hourly')
+            ->selectRaw("
+                locale,
+                SUM(CASE WHEN event_type = 'impression' THEN event_count ELSE 0 END) AS impressions,
+                SUM(CASE WHEN event_type = 'click' THEN event_count ELSE 0 END) AS clicks
+            ")
+            ->groupBy('locale');
+
+        if ($locale = $request->query('locale')) {
+            $query->where('locale', $locale);
+        }
+
+        $results = $query->get()->map(function ($row) {
+            $impressions = (int) $row->impressions;
+
+            return [
+                'locale' => $row->locale,
+                'impressions' => $impressions,
+                'clicks' => (int) $row->clicks,
+                'ctr' => $impressions > 0 ? round((int) $row->clicks / $impressions * 100, 2) : null,
+            ];
+        });
+
+        return response()->json($results);
+    }
+
+    /**
      * GET /api/analytics/time-series
      *
      * Returns daily impressions + clicks for the last N days.
+     * Optional ?locale=X filter.
      */
     public function timeSeries(Request $request): JsonResponse
     {
         $days = min((int) $request->query('days', '30'), 90);
 
-        $rows = DB::table('event_aggregates_hourly')
+        $query = DB::table('event_aggregates_hourly')
             ->selectRaw("
                 date_trunc('day', hour) AS day,
                 event_type,
                 SUM(event_count) AS total
             ")
             ->where('hour', '>=', now()->subDays($days)->startOfDay())
-            ->whereIn('event_type', ['impression', 'click'])
+            ->whereIn('event_type', ['impression', 'click']);
+
+        if ($locale = $request->query('locale')) {
+            $query->where('locale', $locale);
+        }
+
+        $rows = $query
             ->groupBy(DB::raw("date_trunc('day', hour)"), 'event_type')
             ->orderBy('day')
             ->get();
@@ -84,9 +164,12 @@ final class AnalyticsController extends Controller
      * GET /api/analytics/language-breakdown
      *
      * Returns per-language impressions, clicks, CTR, and % change vs previous period.
+     * Optional ?locale=X filter.
      */
-    public function languageBreakdown(): JsonResponse
+    public function languageBreakdown(Request $request): JsonResponse
     {
+        $localeFilter = $request->query('locale');
+
         $today = DB::table('event_aggregates_hourly')
             ->selectRaw("
                 locale,
@@ -94,6 +177,7 @@ final class AnalyticsController extends Controller
                 SUM(CASE WHEN event_type = 'click' THEN event_count ELSE 0 END) AS clicks
             ")
             ->where('hour', '>=', now()->startOfDay())
+            ->when($localeFilter, fn ($q) => $q->where('locale', $localeFilter))
             ->groupBy('locale')
             ->get()
             ->keyBy('locale');
@@ -105,6 +189,7 @@ final class AnalyticsController extends Controller
                 SUM(CASE WHEN event_type = 'click' THEN event_count ELSE 0 END) AS clicks
             ")
             ->whereBetween('hour', [now()->subDay()->startOfDay(), now()->startOfDay()])
+            ->when($localeFilter, fn ($q) => $q->where('locale', $localeFilter))
             ->groupBy('locale')
             ->get()
             ->keyBy('locale');
@@ -138,5 +223,54 @@ final class AnalyticsController extends Controller
         usort($breakdown, fn (array $a, array $b): int => ($b['ctr'] ?? -1) <=> ($a['ctr'] ?? -1));
 
         return response()->json($breakdown);
+    }
+
+    /**
+     * GET /api/analytics/dashboard
+     *
+     * Returns real-time summary with impression count, date range,
+     * and per-language breakdown for 8 core languages.
+     */
+    public function dashboard(Request $request): JsonResponse
+    {
+        $from = $request->query('from', now()->subDays(30)->toDateString());
+        $to = $request->query('to', now()->toDateString());
+
+        $coreLanguages = ['en', 'zh', 'ja', 'ko', 'fr', 'de', 'es', 'pt'];
+
+        $count = (int) DB::table('event_aggregates_hourly')
+            ->where('event_type', 'impression')
+            ->whereBetween(DB::raw('hour::date'), [$from, $to])
+            ->sum('event_count');
+
+        $languages = collect($coreLanguages)->map(function (string $lang) use ($from, $to): array {
+            $impressions = (int) DB::table('event_aggregates_hourly')
+                ->where('locale', $lang)
+                ->where('event_type', 'impression')
+                ->whereBetween(DB::raw('hour::date'), [$from, $to])
+                ->sum('event_count');
+
+            $clicks = (int) DB::table('event_aggregates_hourly')
+                ->where('locale', $lang)
+                ->where('event_type', 'click')
+                ->whereBetween(DB::raw('hour::date'), [$from, $to])
+                ->sum('event_count');
+
+            $ctr = $impressions > 0 ? round($clicks / $impressions * 100, 2) : 0.0;
+
+            return [
+                'language' => $lang,
+                'impressions' => $impressions,
+                'clicks' => $clicks,
+                'ctr' => $ctr,
+            ];
+        });
+
+        return response()->json([
+            'impressions_count' => $count,
+            'date_from' => $from,
+            'date_to' => $to,
+            'languages' => $languages,
+        ]);
     }
 }

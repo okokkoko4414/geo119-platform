@@ -156,10 +156,27 @@ PROMPT;
                 ];
             }
 
-            $lang->update(['quality_score' => $currentScore]);
         }
 
         return $regressions;
+    }
+
+    /**
+     * Record current quality scores as baseline for all baseline languages.
+     */
+    public function recordBaselineScores(): void
+    {
+        $baselineCodes = $this->registry->getBaselineLanguages();
+
+        foreach ($baselineCodes as $code) {
+            $lang = $this->registry->findByCode($code);
+            if ($lang === null) {
+                continue;
+            }
+
+            $currentScore = $this->computeLanguageScore($lang);
+            $lang->update(['quality_score' => $currentScore]);
+        }
     }
 
     public function computeLanguageScore(Language $language): float

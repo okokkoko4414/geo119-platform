@@ -81,17 +81,8 @@ final class TranslationManager
             $value
         );
 
-        // Extract ICU MessageFormat syntax: {param, select, ...} or {count}
-        $value = (string) preg_replace_callback(
-            '/\{[^}]+\}/',
-            function (array $matches) use (&$placeholders): string {
-                $token = '___ICU_'.count($placeholders).'___';
-                $placeholders[$token] = $matches[0];
-
-                return $token;
-            },
-            $value
-        );
+        // Extract ICU MessageFormat syntax: handles nested braces via depth-tracking
+        $value = $this->extractNestedIcuBraces($value, $placeholders);
 
         // Extract HTML tags last (they can wrap other placeholder types)
         $value = (string) preg_replace_callback(
@@ -153,6 +144,46 @@ final class TranslationManager
             sourceText: $sourceValue,
             tier: $language->tier,
         )->onQueue($queue);
+    }
+
+    /**
+     * Extract ICU MessageFormat blocks with arbitrary nesting depth.
+     */
+    private function extractNestedIcuBraces(string $value, array &$placeholders): string
+    {
+        $result = '';
+        $length = strlen($value);
+        $depth = 0;
+        $start = null;
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $value[$i];
+            if ($char === '{') {
+                if ($depth === 0) {
+                    $start = $i;
+                }
+                $depth++;
+            } elseif ($char === '}') {
+                $depth--;
+                if ($depth === 0 && $start !== null) {
+                    $token = '___ICU_'.count($placeholders).'___';
+                    $placeholders[$token] = substr($value, $start, $i - $start + 1);
+                    $result .= $token;
+                    $start = null;
+                    continue;
+                }
+            }
+
+            if ($start === null) {
+                $result .= $char;
+            }
+        }
+
+        if ($start !== null) {
+            $result .= substr($value, $start);
+        }
+
+        return $result;
     }
 
     private function registry(): LanguageRegistry

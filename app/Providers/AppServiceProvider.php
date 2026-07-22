@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Services\ClaudeLocal\ClaudeLocalClient;
 use App\Services\Contracts\RedisStore;
+use App\Services\Optimization\ConcurrencyController;
 use App\Services\Redis\PhpRedisStore;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        $this->app->make(ConcurrencyController::class)->initialize();
     }
 }

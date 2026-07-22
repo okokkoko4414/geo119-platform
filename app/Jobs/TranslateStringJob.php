@@ -142,6 +142,34 @@ final class TranslateStringJob implements ShouldQueue
 
         // 8. Cache warm
         $cache->warm($this->locale, $this->namespace, $this->key, $translatedValue);
+
+        // 9. Sync to JSON file for file-based serving path
+        $this->syncToJsonFile($translatedValue);
+    }
+
+    private function syncToJsonFile(string $value): void
+    {
+        $dir = base_path("lang/{$this->locale}");
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $path = "{$dir}/{$this->namespace}.json";
+        $existing = [];
+        if (file_exists($path)) {
+            $content = file_get_contents($path);
+            if ($content !== false) {
+                $existing = json_decode($content, true) ?? [];
+            }
+        }
+
+        if (($existing[$this->key] ?? null) !== $value) {
+            $existing[$this->key] = $value;
+            file_put_contents(
+                $path,
+                json_encode($existing, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            );
+        }
     }
 
     private function persistFallback(string $fallbackValue, float $score): void

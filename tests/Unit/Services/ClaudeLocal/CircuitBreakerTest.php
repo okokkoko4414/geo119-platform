@@ -7,9 +7,17 @@ namespace Tests\Unit\Services\ClaudeLocal;
 use App\Services\ClaudeLocal\CircuitBreaker;
 use App\Services\ClaudeLocal\CircuitBreakerOpenException;
 use App\Services\ClaudeLocal\RateLimitExceededException;
+use Illuminate\Support\Facades\Redis;
 
 beforeEach(function () {
-    $this->breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 30);
+    $this->breaker = new CircuitBreaker('test', failureThreshold: 5, openDurationSeconds: 30);
+});
+
+afterEach(function () {
+    Redis::connection('cache')->del(
+        'circuit_breaker:test:failures',
+        'circuit_breaker:test:opened_at',
+    );
 });
 
 test('initial state is closed', function () {
@@ -49,7 +57,7 @@ test('stays closed below threshold', function () {
 });
 
 test('half-open transition after cooldown', function () {
-    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
+    $breaker = new CircuitBreaker('halfopen', failureThreshold: 5, openDurationSeconds: 1);
 
     for ($i = 0; $i < 5; $i++) {
         $breaker->recordFailure();
@@ -57,49 +65,59 @@ test('half-open transition after cooldown', function () {
     expect($breaker->getState())->toBe('open');
     expect($breaker->isOpen())->toBeTrue();
 
-    // Wait for cooldown to expire so the circuit transitions to half-open
-    usleep(1_100_000); // 1.1s
+    usleep(1_100_000);
 
     expect($breaker->isOpen())->toBeFalse();
     expect($breaker->getState())->toBe('half-open');
 
-    // Half-open: success resets to closed
     $breaker->recordSuccess();
     expect($breaker->getState())->toBe('closed');
+
+    Redis::connection('cache')->del(
+        'circuit_breaker:halfopen:failures',
+        'circuit_breaker:halfopen:opened_at',
+    );
 });
 
 test('half-open success returns to closed', function () {
-    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
+    $breaker = new CircuitBreaker('halfopen2', failureThreshold: 5, openDurationSeconds: 1);
 
     for ($i = 0; $i < 5; $i++) {
         $breaker->recordFailure();
     }
     expect($breaker->getState())->toBe('open');
 
-    // Wait for half-open
     usleep(1_100_000);
     expect($breaker->getState())->toBe('half-open');
 
     $breaker->recordSuccess();
     expect($breaker->getState())->toBe('closed');
+
+    Redis::connection('cache')->del(
+        'circuit_breaker:halfopen2:failures',
+        'circuit_breaker:halfopen2:opened_at',
+    );
 });
 
 test('half-open failure reopens circuit', function () {
-    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
+    $breaker = new CircuitBreaker('halfopen3', failureThreshold: 5, openDurationSeconds: 1);
 
     for ($i = 0; $i < 5; $i++) {
         $breaker->recordFailure();
     }
     expect($breaker->getState())->toBe('open');
 
-    // Wait for half-open
     usleep(1_100_000);
     expect($breaker->getState())->toBe('half-open');
 
-    // Probe failure -> reopens immediately
     $breaker->recordFailure();
     expect($breaker->getState())->toBe('open');
     expect($breaker->isOpen())->toBeTrue();
+
+    Redis::connection('cache')->del(
+        'circuit_breaker:halfopen3:failures',
+        'circuit_breaker:halfopen3:opened_at',
+    );
 });
 
 test('exception classes exist', function () {

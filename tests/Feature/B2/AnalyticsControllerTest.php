@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -92,8 +93,9 @@ it('returns language breakdown sorted by CTR', function (): void {
 
 it('dashboard page loads successfully', function (): void {
     $this->withoutVite();
+    $user = User::factory()->create();
 
-    $response = $this->get('/en/dashboard/analytics');
+    $response = $this->actingAs($user)->get('/en/dashboard/analytics');
 
     $response->assertOk()
         ->assertViewIs('pages.analytics.dashboard')

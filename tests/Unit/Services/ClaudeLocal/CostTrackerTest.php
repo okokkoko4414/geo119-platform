@@ -5,9 +5,26 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\ClaudeLocal;
 
 use App\Services\ClaudeLocal\CostTracker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Redis;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->tracker = new CostTracker;
+    $this->tracker = new CostTracker('test');
+});
+
+afterEach(function () {
+    $prefix = 'cost_tracker:test:';
+    $redis = Redis::connection('cache');
+    $redis->del(
+        "{$prefix}requests",
+        "{$prefix}input_tokens",
+        "{$prefix}output_tokens",
+        "{$prefix}cost_cents",
+        "{$prefix}latency_ms",
+        "{$prefix}recent",
+    );
 });
 
 test('record stores request and calculates cost', function () {
@@ -77,7 +94,6 @@ test('empty tracker has zero avg latency', function () {
 });
 
 test('pricing calculation is reasonable', function () {
-    // 1M input tokens at $0.14/1M = 14 cents
     $this->tracker->record('deepseek-chat', 1_000_000, 0, 100);
 
     $summary = $this->tracker->getSummary();
@@ -85,7 +101,6 @@ test('pricing calculation is reasonable', function () {
 });
 
 test('output tokens priced higher than input', function () {
-    // 1M output tokens at $0.28/1M = 28 cents
     $this->tracker->record('deepseek-chat', 0, 1_000_000, 100);
 
     $summary = $this->tracker->getSummary();

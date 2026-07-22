@@ -55,6 +55,7 @@ final class EventController extends Controller
 
             $lastEventId = '0';
             $lastOptId = '0';
+            $optStreamInitialized = false;
 
             while (! connection_aborted()) {
                 $hasEvents = false;
@@ -75,21 +76,28 @@ final class EventController extends Controller
                 }
 
                 // Optimization stream (B3 results)
-                $optEntries = Redis::xread(['optimizations:stream' => $lastOptId], 1, 100);
-                if ($optEntries !== null && $optEntries !== false) {
-                    foreach ($optEntries as $stream => $messages) {
-                        foreach ($messages as $id => $fields) {
-                            echo "event: optimization\n";
-                            echo 'data: '.json_encode([
-                                'id' => $fields['id'] ?? '',
-                                'target_locale' => $fields['target_locale'] ?? '',
-                                'optimization_type' => $fields['optimization_type'] ?? '',
-                                'before_score' => (float) ($fields['before_score'] ?? 0),
-                                'after_score' => (float) ($fields['after_score'] ?? 0),
-                                'improvement' => (float) ($fields['improvement'] ?? 0),
-                            ], JSON_THROW_ON_ERROR)."\n\n";
-                            $lastOptId = $id;
-                            $hasEvents = true;
+                // Skip historical entries on first connect — only deliver new events
+                if (! $optStreamInitialized) {
+                    $maxEntry = Redis::xrevrange('optimizations:stream', '+', '-', 1);
+                    $lastOptId = $maxEntry !== false && $maxEntry !== [] ? (string) array_key_first($maxEntry) : '0';
+                    $optStreamInitialized = true;
+                } else {
+                    $optEntries = Redis::xread(['optimizations:stream' => $lastOptId], 1, 100);
+                    if ($optEntries !== null && $optEntries !== false) {
+                        foreach ($optEntries as $stream => $messages) {
+                            foreach ($messages as $id => $fields) {
+                                echo "event: optimization\n";
+                                echo 'data: '.json_encode([
+                                    'id' => $fields['id'] ?? '',
+                                    'target_locale' => $fields['target_locale'] ?? '',
+                                    'optimization_type' => $fields['optimization_type'] ?? '',
+                                    'before_score' => (float) ($fields['before_score'] ?? 0),
+                                    'after_score' => (float) ($fields['after_score'] ?? 0),
+                                    'improvement' => (float) ($fields['improvement'] ?? 0),
+                                ], JSON_THROW_ON_ERROR)."\n\n";
+                                $lastOptId = $id;
+                                $hasEvents = true;
+                            }
                         }
                     }
                 }
