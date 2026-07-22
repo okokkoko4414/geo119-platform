@@ -69,7 +69,7 @@ final class EventTracker
      */
     public function readStream(string $lastId = '0'): array
     {
-        $result = Redis::xread([self::STREAM_KEY => $lastId], 1, 5000);
+        $result = Redis::xread([self::STREAM_KEY => $lastId], 1, 100);
 
         if ($result === null || $result === false) {
             return [];

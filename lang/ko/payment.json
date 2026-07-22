@@ -1,0 +1,11 @@
+{
+    "subtotal": "Subtotal",
+    "tax": "Tax (10%)",
+    "total": "Total",
+    "currency": "USD",
+    "confirm_message": "You will be charged {amount} {currency}. Please review before confirming.",
+    "pay_now": "Pay {amount}",
+    "processing": "Processing payment...",
+    "success": "Payment successful!",
+    "failed": "Payment failed. Please try again."
+}

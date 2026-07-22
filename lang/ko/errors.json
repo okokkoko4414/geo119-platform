@@ -1,0 +1,14 @@
+{
+    "validation.required": "This field is required.",
+    "validation.email": "Please enter a valid email address.",
+    "validation.min": "Must be at least {min} characters.",
+    "validation.max": "Must be at most {max} characters.",
+    "validation.numeric": "Must be a number.",
+    "validation.integer": "Must be a whole number.",
+    "validation.url": "Must be a valid URL.",
+    "payment.failed": "Payment could not be processed. Please try again.",
+    "payment.declined": "Your payment was declined. Please try a different method.",
+    "translation.missing_key": "Translation key \"{key}\" not found for locale \"{locale}\".",
+    "api.rate_limit": "API rate limit exceeded. Try again in {seconds} seconds.",
+    "api.unavailable": "Service temporarily unavailable. Please try again later."
+}

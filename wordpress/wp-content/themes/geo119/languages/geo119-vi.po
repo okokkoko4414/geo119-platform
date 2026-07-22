@@ -1,0 +1,159 @@
+# GEO119 WordPress Theme — Translation Template
+# Copyright (C) 2026 GEO119 Team
+msgid ""
+msgstr ""
+"Project-Id-Version: GEO119 1.0.0\n"
+"Report-Msgid-Bugs-To: https://geo119.com\n"
+"POT-Creation-Date: 2026-07-22 18:00+0700\n"
+"PO-Revision-Date: 2026-07-22 18:00+0700\n"
+"Last-Translator: GEO119 Team <dev@geo119.com>\n"
+"Language-Team: Vietnamese <dev@geo119.com>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GEO119\n"
+"X-Domain: geo119\n"
+
+
+msgid "AI-powered content optimization and translation for global audiences. Reach more users in their native language."
+msgstr "Toi uu hoa noi dung va dich thuat bang AI cho khang gia toan cau. Tiep can nhieu nguoi dung hon bang ngon ngu cua ho."
+
+msgid "All rights reserved."
+msgstr "Da dang ky ban quyen."
+
+msgid "Based on current compute rates."
+msgstr "Dua tren ti gia tinh toan hien tai."
+
+msgid "By confirming, you agree to the GEO119 Terms of Service and Privacy Policy."
+msgstr "Bang cach xac nhan, ban dong y voi Dieu khoan dich vu va Chinh sach bao mat cua GEO119."
+
+msgid "Card"
+msgstr "The"
+
+msgid "Compute Cost Estimate"
+msgstr "Uoc tinh chi phi tinh toan"
+
+msgid "Compute cost"
+msgstr "Chi phi tinh toan"
+
+msgid "Confirm Payment"
+msgstr "Xac nhan thanh toan"
+
+msgid "Content Optimization Platform"
+msgstr "Nen tang toi uu hoa noi dung"
+
+msgid "Content optimization and translation"
+msgstr "Toi uu hoa noi dung va dich thuat"
+
+msgid "Cost Transparency"
+msgstr "Minh bach chi phi"
+
+msgid "Description"
+msgstr "Mo ta"
+
+msgid "English"
+msgstr "Tieng Anh"
+
+msgid "Estimated Cost"
+msgstr "Chi phi uoc tinh"
+
+msgid "Estimated cost before payment confirmation."
+msgstr "Chi phi uoc tinh truoc khi xac nhan thanh toan."
+
+msgid "Everything you need to take your content global."
+msgstr "Tat ca nhung gi ban can de dua noi dung ra toan cau."
+
+msgid "Footer Navigation"
+msgstr "Dieu huong chan trang"
+
+msgid "Get Started Free"
+msgstr "Bat dau mien phi"
+
+msgid "JSON-LD structured data, hreflang tags, XML sitemaps, and clean URLs — everything search engines need."
+msgstr "Du lieu co cau truc JSON-LD, the hreflang, so do XML, va URL sach — tat ca nhung gi cong cu tim kiem can."
+
+msgid "Language"
+msgstr "Ngon ngu"
+
+msgid "Languages"
+msgstr "Ngon ngu"
+
+msgid "Learn More"
+msgstr "Tim hieu them"
+
+msgid "Multi-Language Translation"
+msgstr "Dich thuat da ngon ngu"
+
+msgid "No content found."
+msgstr "Khong tim thay noi dung."
+
+msgid "Pay with your PayPal account"
+msgstr "Thanh toan bang tai khoan PayPal"
+
+msgid "PayPal"
+msgstr "PayPal"
+
+msgid "Payment"
+msgstr "Thanh toan"
+
+msgid "Payment Method"
+msgstr "Phuong thuc thanh toan"
+
+msgid "Primary Navigation"
+msgstr "Dieu huong chinh"
+
+msgid "Ready to reach a global audience?"
+msgstr "San sang tiep can khang gia toan cau?"
+
+msgid "Response Time"
+msgstr "Thoi gian phan hoi"
+
+msgid "Review your order and confirm payment."
+msgstr "Xem lai don hang va xac nhan thanh toan."
+
+msgid "SEO Built-In"
+msgstr "SEO tich hop san"
+
+msgid "See estimated compute costs in points and your local currency before every operation. No surprise charges."
+msgstr "Xem uoc tinh chi phi tinh toan bang diem va tien te dia phuong truoc moi thao tac. Khong co phi bat ngo."
+
+msgid "Service"
+msgstr "Dich vu"
+
+msgid "Start optimizing your content today with GEO119\'s AI-powered platform. Free to get started."
+msgstr "Bat dau toi uu hoa noi dung cua ban ngay hom nay voi nen tang AI cua GEO119. Mien phi de bat dau."
+
+msgid "Subtotal"
+msgstr "Tam tinh"
+
+msgid "Support"
+msgstr "Ho tro"
+
+msgid "Total"
+msgstr "Tong cong"
+
+msgid "Translate your content into 70+ languages with AI-powered accuracy. Automatic locale detection and language switching."
+msgstr "Dich noi dung cua ban sang hon 70 ngon ngu voi do chinh xac AI. Tu dong phat hien ngon ngu va chuyen doi."
+
+msgid "Translation Job"
+msgstr "Cong viec dich thuat"
+
+msgid "Uptime"
+msgstr "Thoi gian hoat dong"
+
+msgid "VND"
+msgstr "VND"
+
+msgid "Vietnamese"
+msgstr "Tieng Viet"
+
+msgid "Visa, Mastercard, JCB"
+msgstr "Visa, Mastercard, JCB"
+
+msgid "Why GEO119?"
+msgstr "Tai sao chon GEO119?"
+
+msgid "points"
+msgstr "diem"

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Services\EventTracking\EventTracker;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class EventController extends Controller
@@ -52,11 +53,14 @@ final class EventController extends Controller
             header('Cache-Control: no-cache');
             header('X-Accel-Buffering: no');
 
-            $lastId = '$';
+            $lastEventId = '$';
+            $lastOptId = '$';
 
             while (! connection_aborted()) {
-                $entries = $this->tracker->readStream($lastId);
+                $hasEvents = false;
 
+                // Event tracking stream (impressions/clicks)
+                $entries = $this->tracker->readStream($lastEventId);
                 if ($entries !== []) {
                     $counters = $this->tracker->todayCounters();
 
@@ -65,7 +69,28 @@ final class EventController extends Controller
 
                     $lastEntry = end($entries);
                     if ($lastEntry !== false) {
-                        $lastId = $lastEntry['id'];
+                        $lastEventId = $lastEntry['id'];
+                    }
+                    $hasEvents = true;
+                }
+
+                // Optimization stream (B3 results)
+                $optEntries = Redis::xread(['optimizations:stream' => $lastOptId], 1, 100);
+                if ($optEntries !== null && $optEntries !== false) {
+                    foreach ($optEntries as $stream => $messages) {
+                        foreach ($messages as $id => $fields) {
+                            echo "event: optimization\n";
+                            echo 'data: '.json_encode([
+                                'id' => $fields['id'] ?? '',
+                                'target_locale' => $fields['target_locale'] ?? '',
+                                'optimization_type' => $fields['optimization_type'] ?? '',
+                                'before_score' => (float) ($fields['before_score'] ?? 0),
+                                'after_score' => (float) ($fields['after_score'] ?? 0),
+                                'improvement' => (float) ($fields['improvement'] ?? 0),
+                            ], JSON_THROW_ON_ERROR)."\n\n";
+                            $lastOptId = $id;
+                            $hasEvents = true;
+                        }
                     }
                 }
 
@@ -73,6 +98,14 @@ final class EventController extends Controller
                     ob_flush();
                 }
                 flush();
+
+                // Push at least every 1s; when idle, push counters anyway so the client stays fresh
+                if (! $hasEvents) {
+                    $counters = $this->tracker->todayCounters();
+                    echo "event: counters\n";
+                    echo 'data: '.json_encode($counters, JSON_THROW_ON_ERROR)."\n\n";
+                    flush();
+                }
 
                 sleep(1);
             }

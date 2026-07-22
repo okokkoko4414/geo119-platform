@@ -1,0 +1,39 @@
+# Production-like override for Phase B GEO119
+# Uses non-conflicting ports to coexist with Phase A containers
+
+services:
+  app:
+    ports:
+      - "8081:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
+  postgres:
+    ports:
+      - "5434:5432"
+
+  redis:
+    ports:
+      - "6380:6379"
+
+  pgbouncer:
+    ports:
+      - "6434:6432"
+
+  prometheus:
+    ports:
+      - "9091:9090"
+
+  grafana:
+    ports:
+      - "3001:3000"
+
+  claude-local:
+    ports:
+      - "8001:8000"
+
+  horizon:
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"

@@ -74,9 +74,9 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_DB: geoflow_test
-          POSTGRES_USER: geoflow
-          POSTGRES_PASSWORD: test_secret
+          POSTGRES_DB: geo119_test
+          POSTGRES_USER: geo119
+          POSTGRES_PASSWORD: geo119_dev
         ports:
           - 5432:5432
         options: >-

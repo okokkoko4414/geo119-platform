@@ -1,6 +1,9 @@
 name: Production Deploy
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       sha:
@@ -32,8 +35,8 @@ jobs:
         run: |
           kubectl apply -f k8s/production/
           kubectl set image deployment/geoflow-laravel \
-            laravel=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.sha || github.ref_name }} \
-            -n geoflow
+            laravel=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.sha || github.sha }} \
+            -n geo119
 
       - name: Canary health check (5 min)
         run: |
@@ -69,7 +72,7 @@ jobs:
               "routing_key": "${{ secrets.PAGERDUTY_ROUTING_KEY }}",
               "event_action": "trigger",
               "payload": {
-                "summary": "Production deploy successful: ${{ github.event.inputs.sha || github.ref_name }}",
+                "summary": "Production deploy successful: ${{ github.event.inputs.sha || github.sha }}",
                 "source": "github-actions",
                 "severity": "info"
               }

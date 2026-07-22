@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\OptimizationResult;
 use App\Services\EventTracking\EventTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,11 +24,28 @@ final class AnalyticsController extends Controller
     {
         $counters = $this->tracker->todayCounters();
 
+        $optimizations = OptimizationResult::query()
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get()
+            ->map(fn (OptimizationResult $r): array => [
+                'id' => $r->id,
+                'target_locale' => $r->target_locale,
+                'optimization_type' => $r->optimization_type,
+                'before_score' => $r->before_score,
+                'after_score' => $r->after_score,
+                'improvement_pct' => round($r->improvement * 100, 1),
+                'cost_cents' => $r->cost_cents,
+                'from_cache' => $r->from_cache,
+                'created_at' => $r->created_at,
+            ]);
+
         return view('pages.analytics.dashboard', [
             'locale' => app()->getLocale(),
             'impressions' => $counters['impressions'],
             'clicks' => $counters['clicks'],
             'ctr' => $counters['ctr'],
+            'optimizations' => $optimizations,
         ]);
     }
 

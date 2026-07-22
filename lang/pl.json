@@ -1,0 +1,11 @@
+{
+    "ui.nav.home": "Strona główna",
+    "ui.button.submit": "Wyślij",
+    "ui.button.cancel": "Anuluj",
+    "ui.button.save": "Zapisz",
+    "ui.payment.title": "Płatność",
+    "ui.home.title": "Optymalizacja jakości tłumaczeń",
+    "ui.home.cta": "Rozpocznij",
+    "ui.errors.not_found": "Nie znaleziono strony",
+    "ui.language.pl": "Polski"
+}

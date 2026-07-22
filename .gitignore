@@ -45,3 +45,4 @@ docker-compose.override.yml
 
 # Compiled assets
 /public/mix-manifest.json
+.gstack/
