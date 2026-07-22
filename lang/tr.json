@@ -1,0 +1,11 @@
+{
+  "ui.nav.home": "Ana Sayfa",
+  "ui.button.submit": "Gönder",
+  "ui.button.cancel": "İptal",
+  "ui.button.save": "Kaydet",
+  "ui.payment.title": "Ödeme",
+  "ui.home.title": "Çeviri Kalitesi Optimizasyonu",
+  "ui.home.cta": "Başla",
+  "ui.dashboard.title": "Etki Takip Panosu",
+  "ui.errors.not_found": "Sayfa bulunamadı"
+}
