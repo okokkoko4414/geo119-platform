@@ -2,7 +2,8 @@
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN docker-php-ext-install -j$(nproc) pcntl && \
+    composer install --no-dev --optimize-autoloader --no-interaction
 
 # Stage 2: Node/Tailwind assets
 FROM node:22-alpine AS assets
@@ -31,6 +32,7 @@ RUN apk add --no-cache \
         pdo_pgsql \
         pgsql \
         opcache \
+        pcntl \
         gd \
         mbstring \
         xml \
