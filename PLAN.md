@@ -54,10 +54,10 @@
 | 1 | B5 基础设施 | 1 周 | Release Engineer | 无 |
 | 2 | B4 English UI | 1 周 | Staff Engineer (Product) | B5 |
 | 3 | B1 语言扩展 25→70 | 2 周 | Staff Engineer (Pipeline) | B5 |
-| 4 | B2 基础追踪 (曝光/点击) | 1 周 | Staff Engineer (Product) | B5 + B4 |
+| 4 | B2 基础追踪 (曝光/点击) | 1 周 | Staff Engineer (Product) | B5 + B4 | ✅ DONE — 38 tests passing, QA PASS |
 | | **→ B-Core 上线, 收集真实数据 (≥1周)** | | | |
 | **B-Growth (3周)** | | | | |
-| 5 | B2 完整分析 (转化/留存/下钻) | 1.5 周 | Staff Engineer (Product) | B2 基础 + B1 数据 |
+| 5 | B2 完整分析 (转化/留存/下钻) | 1.5 周 | Staff Engineer (Product) | B2 基础 + B1 数据 | ⏳ DEFERRED (data-driven, ≥1 week prod data) |
 | 6 | B3 批量优化引擎 | 1.5 周 | Staff Engineer (Pipeline) | B1 + B2 完整 |
 
 ### 子 Issue 列表

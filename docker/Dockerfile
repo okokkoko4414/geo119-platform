@@ -56,8 +56,14 @@ COPY --from=vendor /app/vendor ./vendor
 COPY --from=assets /app/public/build ./public/build
 COPY . .
 
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN addgroup -g 1000 www && adduser -u 1000 -G www -D www \
+    && mkdir -p /var/lib/nginx/logs /var/lib/nginx/tmp/client_body /var/lib/nginx/tmp/proxy \
+    /var/lib/nginx/tmp/fastcgi /var/lib/nginx/tmp/uwsgi /var/lib/nginx/tmp/scgi \
+    /var/run/nginx-proxy \
+    storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views \
+    bootstrap/cache \
+    && chown -R www:www /var/lib/nginx /var/run/nginx-proxy storage bootstrap/cache \
+    && chmod -R 775 /var/lib/nginx /var/run/nginx-proxy storage bootstrap/cache
 
 EXPOSE 80
 

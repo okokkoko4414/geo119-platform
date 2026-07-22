@@ -3,3 +3,5 @@ vendor/
 node_modules/
 .env
 .dockerignore
+storage/logs/
+bootstrap/cache/

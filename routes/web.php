@@ -14,13 +14,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/health', HealthController::class)->name('health');
 
+// Static routes that must not be consumed by {locale?} prefix
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::post('/language/switch', [LanguageController::class, 'switch'])->name('language.switch');
+
 Route::prefix('{locale?}')->middleware('web')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('locale.home');
     Route::get('/component-gallery', [ComponentGalleryController::class, 'index'])
         ->name('component-gallery');
     Route::get('/payment', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
-    Route::post('/language/switch', [LanguageController::class, 'switch'])->name('language.switch');
-    Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
     Route::get('/dashboard/analytics', [AnalyticsController::class, 'index'])->name('analytics.dashboard');
 });

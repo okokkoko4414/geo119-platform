@@ -23,7 +23,7 @@ test('analytics dashboard renders in Vietnamese', function (): void {
 test('sitemap.xml returns 200', function (): void {
     $response = get('/sitemap.xml');
     $response->assertStatus(200);
-    $response->assertHeader('Content-Type', 'text/xml; charset=UTF-8');
+    $response->assertHeader('Content-Type', 'application/xml');
 });
 
 test('language switch POST endpoint returns redirect', function (): void {

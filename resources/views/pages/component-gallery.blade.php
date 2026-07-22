@@ -61,9 +61,9 @@
             <x-table
                 :headers="['Name', 'Status', 'Role', 'Joined']"
                 :rows="[
-                    ['Alice Chen', '<x-badge variant=&quot;success&quot;>Active</x-badge>', 'Admin', '2026-01-15'],
-                    ['Bob Nguyen', '<x-badge variant=&quot;primary&quot;>Active</x-badge>', 'Editor', '2026-03-22'],
-                    ['Carol Tran', '<x-badge variant=&quot;warning&quot;>Pending</x-badge>', 'Viewer', '2026-06-01'],
+                    ['Alice Chen', 'Active', 'Admin', '2026-01-15'],
+                    ['Bob Nguyen', 'Active', 'Editor', '2026-03-22'],
+                    ['Carol Tran', 'Pending', 'Viewer', '2026-06-01'],
                 ]"
             />
         </section>

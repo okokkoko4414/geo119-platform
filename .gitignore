@@ -14,6 +14,7 @@
 /storage/logs/*
 /storage/debugbar/
 /storage/app/public/
+/bootstrap/cache/*.php
 
 # Logs
 *.log

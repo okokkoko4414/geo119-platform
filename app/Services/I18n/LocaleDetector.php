@@ -104,12 +104,14 @@ class LocaleDetector
         setcookie(
             name: self::COOKIE_NAME,
             value: $locale,
-            expires_or_options: time() + self::COOKIE_TTL,
-            path: '/',
-            domain: '',
-            secure: true,
-            httponly: true,
-            same_site: 'Lax',
+            expires_or_options: [
+                'expires' => time() + self::COOKIE_TTL,
+                'path' => '/',
+                'domain' => '',
+                'secure' => true,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ],
         );
     }
 }

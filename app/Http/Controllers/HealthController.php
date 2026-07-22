@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 
 class HealthController extends Controller
 {
