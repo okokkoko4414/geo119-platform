@@ -1,11 +1,12 @@
 {
-  "ui.nav.home": "หน้าแรก",
-  "ui.button.submit": "ส่ง",
-  "ui.button.cancel": "ยกเลิก",
-  "ui.button.save": "บันทึก",
-  "ui.payment.title": "การชำระเงิน",
-  "ui.home.title": "การเพิ่มประสิทธิภาพคุณภาพการแปล",
-  "ui.home.cta": "เริ่มต้น",
-  "ui.dashboard.title": "แดชบอร์ดติดตามผล",
-  "ui.errors.not_found": "ไม่พบหน้า"
+    "ui.nav.home": "หน้าแรก",
+    "ui.button.submit": "ส่ง",
+    "ui.button.cancel": "ยกเลิก",
+    "ui.button.save": "บันทึก",
+    "ui.payment.title": "การชำระเงิน",
+    "ui.home.title": "การเพิ่มประสิทธิภาพคุณภาพการแปล",
+    "ui.home.cta": "เริ่มต้น",
+    "ui.dashboard.title": "แดชบอร์ดติดตามผล",
+    "ui.errors.not_found": "ไม่พบหน้า",
+    "ui.language.th": "ไทย"
 }

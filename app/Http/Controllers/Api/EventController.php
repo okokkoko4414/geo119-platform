@@ -75,7 +75,7 @@ final class EventController extends Controller
                 }
 
                 // Optimization stream (B3 results)
-                $optEntries = Redis::xread(['optimizations:stream' => $lastOptId], 1, 5000);
+                $optEntries = Redis::xread(['optimizations:stream' => $lastOptId], 1, 100);
                 if ($optEntries !== null && $optEntries !== false) {
                     foreach ($optEntries as $stream => $messages) {
                         foreach ($messages as $id => $fields) {

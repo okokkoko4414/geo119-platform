@@ -1,11 +1,12 @@
 {
-  "ui.nav.home": "হোম",
-  "ui.button.submit": "জমা দিন",
-  "ui.button.cancel": "বাতিল",
-  "ui.button.save": "সংরক্ষণ",
-  "ui.payment.title": "পেমেন্ট",
-  "ui.home.title": "অনুবাদ মান অপ্টিমাইজেশন",
-  "ui.home.cta": "শুরু করুন",
-  "ui.dashboard.title": "ইফেক্ট ট্র্যাকিং",
-  "ui.errors.not_found": "পৃষ্ঠা পাওয়া যায়নি"
+    "ui.nav.home": "হোম",
+    "ui.button.submit": "জমা দিন",
+    "ui.button.cancel": "বাতিল",
+    "ui.button.save": "সংরক্ষণ",
+    "ui.payment.title": "পেমেন্ট",
+    "ui.home.title": "অনুবাদ মান অপ্টিমাইজেশন",
+    "ui.home.cta": "শুরু করুন",
+    "ui.dashboard.title": "ইফেক্ট ট্র্যাকিং",
+    "ui.errors.not_found": "পৃষ্ঠা পাওয়া যায়নি",
+    "ui.language.bn": "বাংলা"
 }

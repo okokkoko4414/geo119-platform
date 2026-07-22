@@ -1,11 +1,12 @@
 {
-  "ui.nav.home": "Beranda",
-  "ui.button.submit": "Kirim",
-  "ui.button.cancel": "Batal",
-  "ui.button.save": "Simpan",
-  "ui.payment.title": "Pembayaran",
-  "ui.home.title": "Optimasi Kualitas Terjemahan",
-  "ui.home.cta": "Mulai",
-  "ui.dashboard.title": "Dasbor Pelacakan",
-  "ui.errors.not_found": "Halaman tidak ditemukan"
+    "ui.nav.home": "Beranda",
+    "ui.button.submit": "Kirim",
+    "ui.button.cancel": "Batal",
+    "ui.button.save": "Simpan",
+    "ui.payment.title": "Pembayaran",
+    "ui.home.title": "Optimasi Kualitas Terjemahan",
+    "ui.home.cta": "Mulai",
+    "ui.dashboard.title": "Dasbor Pelacakan",
+    "ui.errors.not_found": "Halaman tidak ditemukan",
+    "ui.language.id": "Bahasa Indonesia"
 }

@@ -19,8 +19,9 @@
         if (!locale) return;
         var currentUrl = new URL(window.location.href);
         var pathParts = currentUrl.pathname.replace(/^\/+|\/+$/g, '').split('/');
+        var supported = (window.geo119Data && window.geo119Data.supportedLocales) || ['en'];
 
-        if (['en', 'vi'].indexOf(pathParts[0]) !== -1) {
+        if (supported.indexOf(pathParts[0]) !== -1) {
           pathParts[0] = locale;
         } else {
           pathParts.unshift(locale);

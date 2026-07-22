@@ -1,11 +1,12 @@
 {
-  "ui.nav.home": "होम",
-  "ui.button.submit": "जमा करें",
-  "ui.button.cancel": "रद्द करें",
-  "ui.button.save": "सहेजें",
-  "ui.payment.title": "भुगतान",
-  "ui.home.title": "अनुवाद गुणवत्ता अनुकूलन",
-  "ui.home.cta": "शुरू करें",
-  "ui.dashboard.title": "प्रभाव ट्रैकिंग डैशबोर्ड",
-  "ui.errors.not_found": "पृष्ठ नहीं मिला"
+    "ui.nav.home": "होम",
+    "ui.button.submit": "जमा करें",
+    "ui.button.cancel": "रद्द करें",
+    "ui.button.save": "सहेजें",
+    "ui.payment.title": "भुगतान",
+    "ui.home.title": "अनुवाद गुणवत्ता अनुकूलन",
+    "ui.home.cta": "शुरू करें",
+    "ui.dashboard.title": "प्रभाव ट्रैकिंग डैशबोर्ड",
+    "ui.errors.not_found": "पृष्ठ नहीं मिला",
+    "ui.language.hi": "हिन्दी"
 }
