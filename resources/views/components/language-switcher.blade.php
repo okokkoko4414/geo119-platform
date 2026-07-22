@@ -11,7 +11,7 @@ $currentUrl = request()->path();
         <select name="locale" aria-label="{{ __('ui.language.switch') }}" class="appearance-none rounded-md border border-surface-200 bg-white py-1.5 pl-3 pr-8 text-xs text-surface-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
             @foreach ($available as $loc)
                 <option value="{{ $loc }}" {{ $loc === $currentLocale ? 'selected' : '' }}>
-                    {{ __("ui.language.{$loc}", [], $loc) }}
+                    {{ __("ui.language.{$loc}") }}
                 </option>
             @endforeach
         </select>
