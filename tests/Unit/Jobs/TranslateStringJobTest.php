@@ -12,7 +12,7 @@ use App\Services\TranslationManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabase::class)->group('integration');
 
 beforeEach(function (): void {
     Config::set('languages.languages', [
