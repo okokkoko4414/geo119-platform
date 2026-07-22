@@ -45,7 +45,7 @@ $supported = defined('GEO119_SUPPORTED_LOCALES') ? GEO119_SUPPORTED_LOCALES : ['
                             class="appearance-none rounded-md border border-surface-300 bg-white py-1.5 pl-3 pr-8 text-sm text-surface-700 focus-ring cursor-pointer">
                         <?php foreach ($supported as $code): ?>
                             <option value="<?php echo esc_attr($code); ?>" <?php selected($locale, $code); ?>>
-                                <?php echo $code === 'vi' ? esc_html__('Vietnamese', 'geo119') : esc_html__('English', 'geo119'); ?>
+                                <?php echo esc_html(geo119_language_display_name($code)); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
