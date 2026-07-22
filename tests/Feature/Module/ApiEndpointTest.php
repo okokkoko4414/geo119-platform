@@ -24,7 +24,7 @@ test('translation API returns JSON for Vietnamese', function (): void {
 });
 
 test('payment cost API returns estimate', function (): void {
-    $response = get('/api/v1/payment/cost');
+    $response = get('/api/v1/payment/cost?character_count=1000&language_pair=en-vi&service_level=standard');
     $response->assertStatus(200);
 });
 

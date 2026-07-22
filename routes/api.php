@@ -40,7 +40,7 @@ Route::middleware('api')->prefix('v1')->group(function (): void {
 
     // B3 — Batch optimization
     Route::post('/batch/optimize', [
-        BatchController::class, 'optimize',
+        BatchController::class, 'submit',
     ])->name('api.batch.optimize');
 });
 

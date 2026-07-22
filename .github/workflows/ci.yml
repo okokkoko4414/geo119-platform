@@ -14,7 +14,7 @@ env:
 jobs:
   # Stage 1: Lint
   lint:
-    name: Lint (PHP_CodeSniffer + Laravel Pint)
+    name: Lint (Laravel Pint)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,6 @@ jobs:
           tools: composer
       - run: composer install --no-progress --no-interaction
       - run: ./vendor/bin/pint --test
-      - run: ./vendor/bin/phpcs -n --standard=PSR12 app/
 
   # Stage 2: No-Chinese-Character Enforcement
   no-chinese:

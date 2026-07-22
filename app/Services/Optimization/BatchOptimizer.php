@@ -212,15 +212,16 @@ final class BatchOptimizer
                 $this->dedupCache->set($sourceText, $locale, $type, $result);
 
                 return $result;
-
             } finally {
                 $this->concurrencyController->release();
             }
         } catch (DeepSeekException $e) {
             // Circuit breaker: record failure (skip recording for budget/circuit-open rejections)
-            if (! str_contains($e->getMessage(), 'Cost budget exceeded')
+            if (
+                ! str_contains($e->getMessage(), 'Cost budget exceeded')
                 && ! str_contains($e->getMessage(), 'Circuit breaker is OPEN')
-                && ! str_contains($e->getMessage(), 'Concurrency slot wait timeout')) {
+                && ! str_contains($e->getMessage(), 'Concurrency slot wait timeout')
+            ) {
                 $this->circuitBreaker->recordFailure();
             }
 
