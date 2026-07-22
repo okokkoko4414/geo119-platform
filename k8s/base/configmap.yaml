@@ -11,11 +11,11 @@ data:
   APP_FALLBACK_LOCALE: "en"
 
   DB_CONNECTION: "pgsql"
-  DB_HOST: "pgbouncer.geoflow.svc.cluster.local"
+  DB_HOST: "pgbouncer.geo119.svc.cluster.local"
   DB_PORT: "6432"
   DB_DATABASE: "geoflow"
 
-  REDIS_HOST: "redis.geoflow.svc.cluster.local"
+  REDIS_HOST: "redis.geo119.svc.cluster.local"
   REDIS_PORT: "6379"
   REDIS_CLIENT: "predis"
 
@@ -23,7 +23,7 @@ data:
   SESSION_DRIVER: "redis"
   QUEUE_CONNECTION: "redis"
 
-  DEEPSEEK_ENDPOINT: "http://claude-local.geoflow.svc.cluster.local:8000"
+  DEEPSEEK_ENDPOINT: "http://claude-local.geo119.svc.cluster.local:8000"
 
   LARAVEL_TELESCOPE_ENABLED: "false"
 

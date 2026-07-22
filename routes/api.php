@@ -4,10 +4,30 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\OptimizationResultsController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TranslationController;
 use App\Http\Controllers\BatchController;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/health', function (): JsonResponse {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'geoflow',
+        'version' => config('app.version', '0.1.0'),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+})->name('health');
+
+Route::get('/api/health', function (): JsonResponse {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'geoflow',
+        'version' => config('app.version', '0.1.0'),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+})->name('api.health');
 
 Route::middleware('api')->group(function (): void {
     // B2 — Event tracking (no version prefix for minimal latency)
@@ -38,8 +58,16 @@ Route::middleware('api')->group(function (): void {
         Route::get('/analytics/language-breakdown', [AnalyticsController::class, 'languageBreakdown'])
             ->name('api.analytics.language-breakdown');
 
+        // B2 — Optimization results
+        Route::get('/optimizations/recent', [OptimizationResultsController::class, 'recent'])
+            ->name('api.optimizations.recent');
+        Route::get('/optimizations/{id}', [OptimizationResultsController::class, 'show'])
+            ->name('api.optimizations.show');
+
         // B3 — Batch optimization
         Route::post('/batch/optimize', [BatchController::class, 'submit'])
             ->name('api.batch.optimize');
+        Route::get('/batch/{jobId}', [BatchController::class, 'status'])
+            ->name('api.batch.status');
     });
 });
