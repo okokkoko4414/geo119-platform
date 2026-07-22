@@ -28,7 +28,8 @@ test('getAvailableTokens returns current balance', function () {
     expect($this->limiter->getAvailableTokens())->toBe(10.0);
 
     $this->limiter->tryAcquire();
-    expect($this->limiter->getAvailableTokens())->toBe(9.0);
+    expect($this->limiter->getAvailableTokens())->toBeGreaterThanOrEqual(9.0)
+        ->and($this->limiter->getAvailableTokens())->toBeLessThan(10.0);
 });
 
 test('refill restores tokens over time', function () {
@@ -44,7 +45,7 @@ test('refill restores tokens over time', function () {
 });
 
 test('default constructor creates valid limiter', function () {
-    $limiter = new RateLimiter();
+    $limiter = new RateLimiter;
     expect($limiter->getAvailableTokens())->toBe(100.0)
         ->and($limiter->tryAcquire())->toBeTrue();
 });

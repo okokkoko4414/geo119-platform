@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\DB;
 class EventSeeder extends Seeder
 {
     private const LOCALES = ['en', 'vi', 'th', 'id', 'ms', 'zh', 'ja', 'ko'];
+
     private const COUNTRIES = ['US', 'VN', 'TH', 'ID', 'MY', 'CN', 'JP', 'KR'];
+
     private const DEVICES = ['desktop', 'mobile', 'tablet'];
+
     private const BROWSERS = ['Chrome', 'Safari', 'Firefox', 'Edge'];
 
     public function run(): void
@@ -39,7 +42,7 @@ class EventSeeder extends Seeder
                     'device_type' => self::DEVICES[array_rand(self::DEVICES)],
                     'browser' => self::BROWSERS[array_rand(self::BROWSERS)],
                     'is_bot' => 'false',
-                    'target_url' => 'https://geo119.com/' . $locale . '/',
+                    'target_url' => 'https://geo119.com/'.$locale.'/',
                     'referrer_url' => random_int(0, 1) ? 'https://google.com/' : null,
                     'metadata' => json_encode(['page_type' => 'home']),
                     'created_at' => $createdAt->toIso8601String(),
@@ -58,7 +61,7 @@ class EventSeeder extends Seeder
                         'device_type' => $rows[count($rows) - 1]['device_type'],
                         'browser' => $rows[count($rows) - 1]['browser'],
                         'is_bot' => 'false',
-                        'target_url' => 'https://geo119.com/' . $locale . '/pricing',
+                        'target_url' => 'https://geo119.com/'.$locale.'/pricing',
                         'referrer_url' => $rows[count($rows) - 1]['target_url'],
                         'metadata' => json_encode(['page_type' => 'pricing']),
                         'created_at' => $clickTime->toIso8601String(),

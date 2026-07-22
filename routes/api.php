@@ -2,31 +2,34 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\TranslationController;
+use App\Http\Controllers\BatchController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware('api')->prefix('v1')->group(function (): void {
     // B1 — Translation
     Route::get('/locale/{locale}/translations', [
-        App\Http\Controllers\Api\TranslationController::class, 'show',
+        TranslationController::class, 'show',
     ])->name('api.translations');
 
     Route::get('/locale/{locale}/cache-status', [
-        App\Http\Controllers\Api\TranslationController::class, 'cacheStatus',
+        TranslationController::class, 'cacheStatus',
     ])->name('api.translations.cache');
 
     // B4 — Payment
     Route::post('/payment/intent', [
-        App\Http\Controllers\Api\PaymentController::class, 'createIntent',
+        PaymentController::class, 'createIntent',
     ])->name('api.payment.intent');
 
     Route::post('/payment/confirm', [
-        App\Http\Controllers\Api\PaymentController::class, 'confirm',
+        PaymentController::class, 'confirm',
     ])->name('api.payment.confirm');
 
     Route::get('/payment/cost', [
-        App\Http\Controllers\Api\PaymentController::class, 'estimateCost',
+        PaymentController::class, 'estimateCost',
     ])->name('api.payment.cost');
 
     // B2 — Analytics
@@ -37,7 +40,7 @@ Route::middleware('api')->prefix('v1')->group(function (): void {
 
     // B3 — Batch optimization
     Route::post('/batch/optimize', [
-        App\Http\Controllers\BatchController::class, 'optimize',
+        BatchController::class, 'optimize',
     ])->name('api.batch.optimize');
 });
 

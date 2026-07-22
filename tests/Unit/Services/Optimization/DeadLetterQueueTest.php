@@ -8,8 +8,8 @@ use App\Services\Optimization\DeadLetterQueue;
 use Psr\Log\NullLogger;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
-    $this->dlq = new DeadLetterQueue($this->redis, new NullLogger());
+    $this->redis = new FakeRedisStore;
+    $this->dlq = new DeadLetterQueue($this->redis, new NullLogger);
 });
 
 test('push adds entry and increments count', function () {

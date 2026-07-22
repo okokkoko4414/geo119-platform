@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\I18n\LocaleDetector;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -12,7 +13,7 @@ class HomeController extends Controller
     {
         return view('pages.home', [
             'locale' => app()->getLocale(),
-            'availableLocales' => app(\App\Services\I18n\LocaleDetector::class)->availableLocales(),
+            'availableLocales' => app(LocaleDetector::class)->availableLocales(),
         ]);
     }
 }

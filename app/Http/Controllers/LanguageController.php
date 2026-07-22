@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\I18n\LocaleDetector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Services\I18n\LocaleDetector;
 
 class LanguageController extends Controller
 {
@@ -15,9 +15,9 @@ class LanguageController extends Controller
         $locale = $request->input('locale', 'en');
         $detector->setCookie($locale);
 
-        $prefix = $locale === 'en' ? '' : '/' . $locale;
+        $prefix = $locale === 'en' ? '' : '/'.$locale;
         $redirectTo = $request->input('redirect_to', '/');
 
-        return redirect($prefix . $redirectTo);
+        return redirect($prefix.$redirectTo);
     }
 }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use App\Services\EventTracking\EventTracker;
 use App\Services\EventTracking\UserAgentParser;
+use Illuminate\Http\Request;
 use Tests\Unit\Services\Optimization\FakeRedisStore;
 
 beforeEach(function (): void {
-    $this->redis = new FakeRedisStore();
-    $this->uaParser = new UserAgentParser();
+    $this->redis = new FakeRedisStore;
+    $this->uaParser = new UserAgentParser;
     $this->tracker = new EventTracker($this->uaParser, $this->redis);
 });
 
@@ -45,7 +46,7 @@ it('ignores stale counters from previous days', function (): void {
 });
 
 it('resolves country from Cloudflare IP header', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_CF_IPCOUNTRY' => 'VN',
     ]);
 
@@ -56,7 +57,7 @@ it('resolves country from Cloudflare IP header', function (): void {
 });
 
 it('ignores XX Cloudflare country code', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_CF_IPCOUNTRY' => 'XX',
     ]);
 
@@ -67,7 +68,7 @@ it('ignores XX Cloudflare country code', function (): void {
 });
 
 it('returns null when no Cloudflare header present', function (): void {
-    $request = Illuminate\Http\Request::create('/');
+    $request = Request::create('/');
 
     $ref = new ReflectionMethod(EventTracker::class, 'resolveCountry');
     $ref->setAccessible(true);

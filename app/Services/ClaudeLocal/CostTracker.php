@@ -7,13 +7,18 @@ use Illuminate\Support\Facades\Log;
 class CostTracker
 {
     private array $requests = [];
+
     private int $totalInputTokens = 0;
+
     private int $totalOutputTokens = 0;
+
     private int $totalCostCents = 0;
+
     private int $totalLatencyMs = 0;
 
     // DeepSeek pricing (cents per 1M tokens)
     private const COST_PER_1M_INPUT = 14;   // $0.14/1M input
+
     private const COST_PER_1M_OUTPUT = 28;  // $0.28/1M output
 
     public function record(string $model, int $inputTokens, int $outputTokens, int $latencyMs): void

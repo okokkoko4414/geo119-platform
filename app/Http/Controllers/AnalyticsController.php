@@ -56,7 +56,7 @@ final class AnalyticsController extends Controller
         foreach ($rows as $row) {
             $date = $row->day;
             $series[$date] ??= ['day' => $date, 'impressions' => 0, 'clicks' => 0];
-            $series[$date][$row->event_type . 's'] = (int) $row->total;
+            $series[$date][$row->event_type.'s'] = (int) $row->total;
         }
 
         return response()->json(array_values($series));

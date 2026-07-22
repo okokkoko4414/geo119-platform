@@ -7,8 +7,11 @@ namespace App\Services\Payment;
 class PaymentGateway
 {
     public const STRIPE = 'stripe';
+
     public const PAYPAL = 'paypal';
+
     public const MOMO = 'momo';
+
     public const VNPAY = 'vnpay';
 
     /**

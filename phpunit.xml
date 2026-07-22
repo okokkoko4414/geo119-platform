@@ -17,14 +17,17 @@
     </testsuites>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:zt7Yx5Wpqz9P6cUZWHRl21RjKQFho3pHBZ6ykh7lWgc="/>
         <env name="DB_CONNECTION" value="pgsql"/>
         <env name="DB_HOST" value="localhost"/>
         <env name="DB_PORT" value="5432"/>
         <env name="DB_DATABASE" value="geo119_test"/>
         <env name="DB_USERNAME" value="geo119"/>
         <env name="DB_PASSWORD" value="geo119_dev"/>
-        <env name="CACHE_DRIVER" value="array"/>
+        <env name="CACHE_DRIVER" value="redis"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="HORIZON_ENABLED" value="false"/>
     </php>
 </phpunit>

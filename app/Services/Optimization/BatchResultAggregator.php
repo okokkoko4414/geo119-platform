@@ -6,11 +6,15 @@ namespace App\Services\Optimization;
 
 final readonly class BatchResultAggregator
 {
-    /** @param OptimizationResult[] $results */
-    public function aggregate(array $results): array
+    /**
+     * @param  OptimizationResult[]  $results
+     * @param  array<int, array{index: int, source_text: string, locale: string, type: string, error: string}>  $failures
+     */
+    public function aggregate(array $results, array $failures = []): array
     {
-        $successes = [];
+        $externalFailures = $failures;
         $failures = [];
+        $successes = [];
         $totalCostCents = 0.0;
         $totalWords = 0;
         $totalLatencyMs = 0;
@@ -47,11 +51,13 @@ final readonly class BatchResultAggregator
 
         $resultCount = count($results);
 
+        $allFailures = array_merge($externalFailures, $failures);
+
         return [
             'summary' => [
-                'total' => $resultCount,
+                'total' => $resultCount + count($externalFailures),
                 'successful' => count($successes),
-                'failed' => count($failures),
+                'failed' => count($allFailures),
                 'cache_hits' => $cacheHits,
                 'cache_hit_rate' => $resultCount > 0
                     ? round($cacheHits / $resultCount, 4)
@@ -68,7 +74,7 @@ final readonly class BatchResultAggregator
                     : 0,
             ],
             'details' => $successes,
-            'failures' => $failures,
+            'failures' => $allFailures,
         ];
     }
 

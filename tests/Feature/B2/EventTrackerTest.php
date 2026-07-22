@@ -5,18 +5,19 @@ declare(strict_types=1);
 use App\Services\EventTracking\EventTracker;
 use App\Services\EventTracking\UserAgentParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\Unit\Services\Optimization\FakeRedisStore;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $this->redis = new FakeRedisStore();
-    $this->uaParser = new UserAgentParser();
+    $this->redis = new FakeRedisStore;
+    $this->uaParser = new UserAgentParser;
     $this->tracker = new EventTracker($this->uaParser, $this->redis);
 });
 
 it('increments impression counter for impression events', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 Chrome/120',
         'HTTP_REFERER' => 'https://google.com/',
     ]);
@@ -32,7 +33,7 @@ it('increments impression counter for impression events', function (): void {
 });
 
 it('increments click counter for click events', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 Chrome/120',
     ]);
 
@@ -47,7 +48,7 @@ it('increments click counter for click events', function (): void {
 });
 
 it('does not increment counters for bot traffic', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Googlebot/2.1',
     ]);
 
@@ -62,7 +63,7 @@ it('does not increment counters for bot traffic', function (): void {
 });
 
 it('computes CTR correctly', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 Chrome/120',
     ]);
 
@@ -77,7 +78,7 @@ it('computes CTR correctly', function (): void {
 });
 
 it('uses date-stamped counter keys for daily reset', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 Chrome/120',
     ]);
 
@@ -88,7 +89,7 @@ it('uses date-stamped counter keys for daily reset', function (): void {
 });
 
 it('persists event to database', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 (iPhone) Chrome/120 Mobile',
         'HTTP_REFERER' => 'https://google.com/',
     ]);
@@ -111,7 +112,7 @@ it('persists event to database', function (): void {
 });
 
 it('sets target_url to null when target not in payload', function (): void {
-    $request = Illuminate\Http\Request::create('/', 'POST', [], [], [], [
+    $request = Request::create('/', 'POST', [], [], [], [
         'HTTP_USER_AGENT' => 'Mozilla/5.0 Chrome/120',
         'HTTP_REFERER' => 'https://referrer.com/',
     ]);

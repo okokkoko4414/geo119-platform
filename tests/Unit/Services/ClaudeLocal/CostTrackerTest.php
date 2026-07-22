@@ -7,7 +7,7 @@ namespace Tests\Unit\Services\ClaudeLocal;
 use App\Services\ClaudeLocal\CostTracker;
 
 beforeEach(function () {
-    $this->tracker = new CostTracker();
+    $this->tracker = new CostTracker;
 });
 
 test('record stores request and calculates cost', function () {

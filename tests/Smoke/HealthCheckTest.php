@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
 use function Pest\Laravel\get;
 
 test('health endpoint returns 200', function (): void {

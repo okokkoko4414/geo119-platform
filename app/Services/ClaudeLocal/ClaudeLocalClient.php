@@ -9,10 +9,15 @@ use Psr\Log\LoggerInterface;
 class ClaudeLocalClient
 {
     private string $endpoint;
+
     private string $apiKey;
+
     private CircuitBreaker $circuitBreaker;
+
     private RateLimiter $rateLimiter;
+
     private CostTracker $costTracker;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -24,9 +29,9 @@ class ClaudeLocalClient
     ) {
         $this->endpoint = $endpoint ?? config('services.deepseek.endpoint', 'http://localhost:8080');
         $this->apiKey = $apiKey ?? config('services.deepseek.api_key', '');
-        $this->circuitBreaker = $circuitBreaker ?? new CircuitBreaker();
-        $this->rateLimiter = $rateLimiter ?? new RateLimiter();
-        $this->costTracker = $costTracker ?? new CostTracker();
+        $this->circuitBreaker = $circuitBreaker ?? new CircuitBreaker;
+        $this->rateLimiter = $rateLimiter ?? new RateLimiter;
+        $this->costTracker = $costTracker ?? new CostTracker;
         $this->logger = app('log');
     }
 
@@ -45,10 +50,10 @@ class ClaudeLocalClient
         try {
             $response = Http::timeout($options['timeout'] ?? 120)
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Authorization' => 'Bearer '.$this->apiKey,
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->endpoint . '/v1/chat/completions', [
+                ->post($this->endpoint.'/v1/chat/completions', [
                     'model' => $options['model'] ?? 'deepseek-chat',
                     'messages' => $messages,
                     'temperature' => $options['temperature'] ?? 0.7,
@@ -89,13 +94,13 @@ class ClaudeLocalClient
             $this->circuitBreaker->recordFailure();
             $this->logger->error('ClaudeLocal connection error', ['error' => $e->getMessage()]);
 
-            throw new \RuntimeException('ClaudeLocal unreachable: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('ClaudeLocal unreachable: '.$e->getMessage(), 0, $e);
         }
     }
 
     public function translate(string $source, string $targetLocale, ?string $context = null): array
     {
-        $systemPrompt = "You are a professional translator. Translate the following text to the target language. Maintain tone, style, and formatting. Respond with only the translated text, no explanations.";
+        $systemPrompt = 'You are a professional translator. Translate the following text to the target language. Maintain tone, style, and formatting. Respond with only the translated text, no explanations.';
 
         $userMessage = "Target language code: {$targetLocale}\n\n";
         if ($context) {
@@ -117,7 +122,7 @@ class ClaudeLocalClient
 
         $userMessage = "Objective: {$objective}\n";
         if ($parameters) {
-            $userMessage .= 'Parameters: ' . json_encode($parameters) . "\n\n";
+            $userMessage .= 'Parameters: '.json_encode($parameters)."\n\n";
         }
         $userMessage .= "Content:\n{$content}";
 

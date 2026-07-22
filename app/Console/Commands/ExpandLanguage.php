@@ -8,13 +8,14 @@ use App\Models\Translation;
 use App\Services\LanguageRegistry;
 use App\Services\TranslationManager;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 final class ExpandLanguage extends Command
 {
     protected $signature = 'lang:expand {code : Language code (e.g. vi, ja, th)}'
-        . ' {--namespace=ui : Translation namespace}'
-        . ' {--retranslate : Re-translate all keys for an existing language}'
-        . ' {--dry-run : Show what would be dispatched without actually doing it}';
+        .' {--namespace=ui : Translation namespace}'
+        .' {--retranslate : Re-translate all keys for an existing language}'
+        .' {--dry-run : Show what would be dispatched without actually doing it}';
 
     protected $description = 'Trigger the translation pipeline for a new (or existing) language';
 
@@ -36,13 +37,13 @@ final class ExpandLanguage extends Command
 
         if ($existing !== null && $existing->is_active && ! $retranslate) {
             $this->info("Language '{$code}' ({$def['name']}) is already active.");
-            $this->info("Use --retranslate to re-translate all keys.");
+            $this->info('Use --retranslate to re-translate all keys.');
 
             return self::SUCCESS;
         }
 
         $this->info("Language: {$def['name']} ({$def['native_name']})");
-        $this->info("Tier: {$def['tier']}" . ($def['tier'] === 2 ? ' (Beta badge)' : ''));
+        $this->info("Tier: {$def['tier']}".($def['tier'] === 2 ? ' (Beta badge)' : ''));
         $this->newLine();
 
         $sourceTranslations = Translation::locale('en')
@@ -60,13 +61,13 @@ final class ExpandLanguage extends Command
 
         if ($dryRun) {
             $this->newLine();
-            $this->info('[DRY RUN] Would dispatch ' . $sourceTranslations->count() . ' translation jobs.');
+            $this->info('[DRY RUN] Would dispatch '.$sourceTranslations->count().' translation jobs.');
             $this->table(
                 ['Key', 'Source Value'],
-                $sourceTranslations->take(10)->map(fn ($t) => [$t->key, \Illuminate\Support\Str::limit($t->value, 60)])
+                $sourceTranslations->take(10)->map(fn ($t) => [$t->key, Str::limit($t->value, 60)])
             );
             if ($sourceTranslations->count() > 10) {
-                $this->line("  ... and " . ($sourceTranslations->count() - 10) . ' more');
+                $this->line('  ... and '.($sourceTranslations->count() - 10).' more');
             }
 
             return self::SUCCESS;
@@ -79,7 +80,7 @@ final class ExpandLanguage extends Command
         $dispatched = $manager->expandLanguage($code, $strings, $namespace);
 
         $this->info("Dispatched {$dispatched} translation jobs to Horizon.");
-        $this->info("Monitor with: php artisan horizon:status");
+        $this->info('Monitor with: php artisan horizon:status');
 
         return self::SUCCESS;
     }

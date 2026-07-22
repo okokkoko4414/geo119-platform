@@ -28,13 +28,13 @@ final class BatchOptimizer
     /**
      * Submit a batch of texts for optimization.
      *
-     * @param array<int, array{source_text: string, target_locale: string, optimization_type: string}> $items
+     * @param  array<int, array{source_text: string, target_locale: string, optimization_type: string}>  $items
      * @return array{job_id: string, estimated_cost: float, estimated_duration: int, status: string}
      */
     public function submit(array $items): array
     {
         $jobId = Uuid::uuid4()->toString();
-        $totalChars = array_sum(array_map(fn($i) => mb_strlen($i['source_text']), $items));
+        $totalChars = array_sum(array_map(fn ($i) => mb_strlen($i['source_text']), $items));
         $estimatedTokens = (int) ceil($totalChars / 4);
         $estimatedCost = $this->costTracker->calculateCost(new DeepSeekResponse(
             optimizedText: '',
@@ -58,8 +58,7 @@ final class BatchOptimizer
     /**
      * Process a batch synchronously.
      *
-     * @param array<int, array{source_text: string, target_locale: string, optimization_type: string}> $items
-     * @return array
+     * @param  array<int, array{source_text: string, target_locale: string, optimization_type: string}>  $items
      */
     public function process(array $items): array
     {
@@ -87,7 +86,7 @@ final class BatchOptimizer
             }
         }
 
-        return $this->aggregator->aggregate($results);
+        return $this->aggregator->aggregate($results, $failures);
     }
 
     /**
@@ -106,11 +105,12 @@ final class BatchOptimizer
                 'hash' => $this->dedupCache->hashKey($sourceText, $locale, $type),
                 'locale' => $locale,
             ]);
+
             return $cached;
         }
 
         // 2. Acquire processing lock (handle concurrent identical requests)
-        if (!$this->dedupCache->acquireLock($sourceText, $locale, $type)) {
+        if (! $this->dedupCache->acquireLock($sourceText, $locale, $type)) {
             $this->logger->debug('BatchOptimizer: waiting for in-flight result');
             $polled = $this->dedupCache->pollForResult($sourceText, $locale, $type, self::QUEUE_WAIT_TIMEOUT_MS);
             if ($polled !== null) {
@@ -122,9 +122,9 @@ final class BatchOptimizer
             // 3. Acquire concurrency slot
             $waitStart = microtime(true);
             $acquired = false;
-            while (!$acquired) {
+            while (! $acquired) {
                 $acquired = $this->concurrencyController->acquire();
-                if (!$acquired) {
+                if (! $acquired) {
                     $elapsed = (microtime(true) - $waitStart) * 1000;
                     if ($elapsed >= self::QUEUE_WAIT_TIMEOUT_MS) {
                         throw new DeepSeekException('Concurrency slot wait timeout — all workers busy');
@@ -135,7 +135,7 @@ final class BatchOptimizer
 
             try {
                 // 4. Check circuit breaker
-                if (!$this->circuitBreaker->isAvailable()) {
+                if (! $this->circuitBreaker->isAvailable()) {
                     $retryAfter = $this->circuitBreaker->retryAfterSeconds();
                     throw new DeepSeekException(
                         "Circuit breaker is OPEN. Retry after {$retryAfter}s."
@@ -153,7 +153,7 @@ final class BatchOptimizer
                     locale: $locale,
                 ));
 
-                if (!$this->costTracker->isWithinBudget($estimatedCost)) {
+                if (! $this->costTracker->isWithinBudget($estimatedCost)) {
                     throw new DeepSeekException(
                         'Daily cost budget exceeded. Request rejected. Budget resets at midnight UTC.'
                     );
@@ -204,7 +204,7 @@ final class BatchOptimizer
                     outputTokens: $response->outputTokens,
                     model: $response->model,
                     latencyMs: $response->latencyMs,
-                    cachedAt: new DateTimeImmutable(),
+                    cachedAt: new DateTimeImmutable,
                     fromCache: false,
                 );
 
@@ -218,9 +218,9 @@ final class BatchOptimizer
             }
         } catch (DeepSeekException $e) {
             // Circuit breaker: record failure (skip recording for budget/circuit-open rejections)
-            if (!str_contains($e->getMessage(), 'Cost budget exceeded')
-                && !str_contains($e->getMessage(), 'Circuit breaker is OPEN')
-                && !str_contains($e->getMessage(), 'Concurrency slot wait timeout')) {
+            if (! str_contains($e->getMessage(), 'Cost budget exceeded')
+                && ! str_contains($e->getMessage(), 'Circuit breaker is OPEN')
+                && ! str_contains($e->getMessage(), 'Concurrency slot wait timeout')) {
                 $this->circuitBreaker->recordFailure();
             }
 

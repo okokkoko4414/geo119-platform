@@ -9,6 +9,7 @@ use App\Services\Contracts\RedisStore;
 final class ConcurrencyController
 {
     private const SLOTS_KEY = 'concurrency:slots';
+
     private const INITIALIZED_KEY = 'concurrency:initialized';
 
     public function __construct(
@@ -21,7 +22,7 @@ final class ConcurrencyController
      */
     public function initialize(): void
     {
-        if (!$this->redis->setnx(self::INITIALIZED_KEY, '1', 0)) {
+        if (! $this->redis->setnx(self::INITIALIZED_KEY, '1', 0)) {
             return;
         }
         $this->redis->set(self::SLOTS_KEY, (string) $this->maxConcurrent);
@@ -35,6 +36,7 @@ final class ConcurrencyController
             // Over-subscribed — roll back the decrement.
             // Slot may be lost if we crash here, but reconcile() handles drift.
             $this->redis->incr(self::SLOTS_KEY);
+
             return false;
         }
 
@@ -51,7 +53,7 @@ final class ConcurrencyController
 
     public function availableSlots(): int
     {
-        return max(0, (int) ($this->redis->get(self::SLOTS_KEY) ?: $this->maxConcurrent));
+        return max(0, (int) ($this->redis->get(self::SLOTS_KEY) ?? $this->maxConcurrent));
     }
 
     /**

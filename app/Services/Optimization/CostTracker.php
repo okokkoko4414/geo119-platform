@@ -10,8 +10,11 @@ use Psr\Log\LoggerInterface;
 final class CostTracker
 {
     private const DEEPSEEK_INPUT_PRICE_PER_1M = 0.14;  // $0.14 per 1M input tokens
+
     private const DEEPSEEK_OUTPUT_PRICE_PER_1M = 0.28; // $0.28 per 1M output tokens
+
     private const DAILY_BUDGET_KEY = 'cost:daily_budget';
+
     private const DAILY_SPEND_KEY_PREFIX = 'cost:daily:';
 
     public function __construct(
@@ -61,6 +64,7 @@ final class CostTracker
     public function isWithinBudget(float $estimatedCostCents): bool
     {
         $currentSpend = $this->getDailySpend();
+
         return ($currentSpend + $estimatedCostCents) <= $this->dailyBudgetCents;
     }
 
@@ -82,6 +86,7 @@ final class CostTracker
         if ($totalWords === 0) {
             return 0.0;
         }
+
         return $totalCostCents / $totalWords;
     }
 
@@ -95,6 +100,6 @@ final class CostTracker
 
     private function dailySpendKey(): string
     {
-        return self::DAILY_SPEND_KEY_PREFIX . date('Y-m-d');
+        return self::DAILY_SPEND_KEY_PREFIX.date('Y-m-d');
     }
 }

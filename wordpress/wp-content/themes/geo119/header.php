@@ -29,7 +29,7 @@ $dir = in_array(substr($locale, 0, 2), ['ar', 'he', 'fa']) ? 'rtl' : 'ltr';
                 'container_class' => 'hidden md:flex items-center gap-6',
                 'fallback_cb' => false,
             ]);
-            ?>
+?>
         </nav>
     </div>
 </header>

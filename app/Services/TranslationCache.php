@@ -8,9 +8,10 @@ use App\Models\Translation;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Facades\Redis;
 
-final class TranslationCache
+class TranslationCache
 {
     private const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
     private const PREFIX = 'trans:';
 
     private Connection $redis;
@@ -48,9 +49,18 @@ final class TranslationCache
 
     public function forgetLocale(string $locale): void
     {
-        $pattern = self::PREFIX . "{$locale}:*";
+        $pattern = self::PREFIX."{$locale}:*";
         $keys = $this->redis->keys($pattern);
         if (! empty($keys)) {
+            // PhpRedis may return keys with the connection prefix included.
+            // Strip the prefix so del() doesn't double-prefix.
+            $prefix = (string) config('database.redis.options.prefix', '');
+            if ($prefix !== '' && str_starts_with($keys[0], $prefix)) {
+                $keys = array_map(
+                    fn (string $key): string => substr($key, strlen($prefix)),
+                    $keys
+                );
+            }
             $this->redis->del(...$keys);
         }
     }
@@ -90,6 +100,6 @@ final class TranslationCache
 
     private function cacheKey(string $locale, string $namespace, string $key): string
     {
-        return self::PREFIX . "{$locale}:{$namespace}:{$key}";
+        return self::PREFIX."{$locale}:{$namespace}:{$key}";
     }
 }

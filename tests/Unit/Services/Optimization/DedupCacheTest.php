@@ -11,7 +11,7 @@ use App\Services\Optimization\OptimizationType;
 use DateTimeImmutable;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
+    $this->redis = new FakeRedisStore;
     $this->cache = new DedupCache($this->redis);
 });
 
@@ -33,7 +33,7 @@ test('set and get round-trips an OptimizationResult', function () {
         outputTokens: 12,
         model: 'deepseek-chat',
         latencyMs: 500,
-        cachedAt: new DateTimeImmutable(),
+        cachedAt: new DateTimeImmutable,
     );
 
     $this->cache->set('Hello world', 'zh-CN', OptimizationType::Grammar, $result);
@@ -94,7 +94,7 @@ test('pollForResult returns cached result when available', function () {
         outputTokens: 6,
         model: 'deepseek-chat',
         latencyMs: 300,
-        cachedAt: new DateTimeImmutable(),
+        cachedAt: new DateTimeImmutable,
     );
 
     // Simulate: another process computes and caches the result
@@ -123,7 +123,7 @@ test('DedupCache B3.4: identical input returns cached result', function () {
         outputTokens: 22,
         model: 'deepseek-chat',
         latencyMs: 800,
-        cachedAt: new DateTimeImmutable(),
+        cachedAt: new DateTimeImmutable,
     );
 
     $this->cache->set('Duplicate test text', 'vi-VN', OptimizationType::Full, $result);

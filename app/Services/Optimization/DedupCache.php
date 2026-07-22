@@ -9,7 +9,9 @@ use App\Services\Contracts\RedisStore;
 final class DedupCache
 {
     private const DEFAULT_TTL = 86400; // 24h TTL per issue spec
+
     private const LOCK_TTL = 60;            // 60s lock for in-flight requests (covers P99 + buffer)
+
     private const POLL_INTERVAL_US = 100_000; // 100ms poll interval
 
     public function __construct(
@@ -22,7 +24,28 @@ final class DedupCache
         $key = $this->cacheKey($source, $locale, $type);
         $cached = $this->redis->get($key);
 
-        return $cached ? OptimizationResult::fromJson($cached) : null;
+        if (! $cached) {
+            return null;
+        }
+
+        $result = OptimizationResult::fromJson($cached);
+
+        // Mark as fromCache=true since this was retrieved from the dedup store
+        return new OptimizationResult(
+            id: $result->id,
+            sourceText: $result->sourceText,
+            optimizedText: $result->optimizedText,
+            targetLocale: $result->targetLocale,
+            optimizationType: $result->optimizationType,
+            score: $result->score,
+            costCents: $result->costCents,
+            inputTokens: $result->inputTokens,
+            outputTokens: $result->outputTokens,
+            model: $result->model,
+            latencyMs: $result->latencyMs,
+            cachedAt: $result->cachedAt,
+            fromCache: true,
+        );
     }
 
     public function set(string $source, string $locale, OptimizationType $type, OptimizationResult $result): void
@@ -57,7 +80,7 @@ final class DedupCache
             }
 
             $lockKey = $this->lockKey($source, $locale, $type);
-            if (!$this->redis->exists($lockKey)) {
+            if (! $this->redis->exists($lockKey)) {
                 return null;
             }
 
@@ -79,11 +102,11 @@ final class DedupCache
 
     public function cacheKey(string $source, string $locale, OptimizationType $type): string
     {
-        return 'dedup:' . $this->hashKey($source, $locale, $type);
+        return 'dedup:'.$this->hashKey($source, $locale, $type);
     }
 
     private function lockKey(string $source, string $locale, OptimizationType $type): string
     {
-        return 'dedup:lock:' . $this->hashKey($source, $locale, $type);
+        return 'dedup:lock:'.$this->hashKey($source, $locale, $type);
     }
 }

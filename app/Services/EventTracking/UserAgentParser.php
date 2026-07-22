@@ -54,10 +54,10 @@ final class UserAgentParser
         if (str_contains($ua, 'Edg/')) {
             return 'Edge';
         }
-        if (str_contains($ua, 'Chrome/') && !str_contains($ua, 'Edg/')) {
+        if (str_contains($ua, 'Chrome/') && ! str_contains($ua, 'Edg/')) {
             return 'Chrome';
         }
-        if (str_contains($ua, 'Safari/') && !str_contains($ua, 'Chrome/')) {
+        if (str_contains($ua, 'Safari/') && ! str_contains($ua, 'Chrome/')) {
             return 'Safari';
         }
         if (str_contains($ua, 'Firefox/')) {

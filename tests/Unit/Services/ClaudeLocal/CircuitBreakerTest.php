@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\ClaudeLocal;
 
 use App\Services\ClaudeLocal\CircuitBreaker;
+use App\Services\ClaudeLocal\CircuitBreakerOpenException;
+use App\Services\ClaudeLocal\RateLimitExceededException;
 
 beforeEach(function () {
     $this->breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 30);
@@ -47,43 +49,60 @@ test('stays closed below threshold', function () {
 });
 
 test('half-open transition after cooldown', function () {
-    for ($i = 0; $i < 5; $i++) {
-        $this->breaker->recordFailure();
-    }
-    expect($this->breaker->getState())->toBe('open');
+    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
 
-    $fastBreaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 0);
-    expect($fastBreaker->isOpen())->toBeFalse();
-    expect($fastBreaker->getState())->toBe('half-open');
+    for ($i = 0; $i < 5; $i++) {
+        $breaker->recordFailure();
+    }
+    expect($breaker->getState())->toBe('open');
+    expect($breaker->isOpen())->toBeTrue();
+
+    // Wait for cooldown to expire so the circuit transitions to half-open
+    usleep(1_100_000); // 1.1s
+
+    expect($breaker->isOpen())->toBeFalse();
+    expect($breaker->getState())->toBe('half-open');
+
+    // Half-open: success resets to closed
+    $breaker->recordSuccess();
+    expect($breaker->getState())->toBe('closed');
 });
 
 test('half-open success returns to closed', function () {
+    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
+
     for ($i = 0; $i < 5; $i++) {
-        $this->breaker->recordFailure();
+        $breaker->recordFailure();
     }
+    expect($breaker->getState())->toBe('open');
 
-    $fastBreaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 0);
-    $fastBreaker->isOpen();
-    expect($fastBreaker->getState())->toBe('half-open');
+    // Wait for half-open
+    usleep(1_100_000);
+    expect($breaker->getState())->toBe('half-open');
 
-    $fastBreaker->recordSuccess();
-    expect($fastBreaker->getState())->toBe('closed');
+    $breaker->recordSuccess();
+    expect($breaker->getState())->toBe('closed');
 });
 
 test('half-open failure reopens circuit', function () {
+    $breaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 1);
+
     for ($i = 0; $i < 5; $i++) {
-        $this->breaker->recordFailure();
+        $breaker->recordFailure();
     }
+    expect($breaker->getState())->toBe('open');
 
-    $fastBreaker = new CircuitBreaker(failureThreshold: 5, openDurationSeconds: 0);
-    $fastBreaker->isOpen();
-    expect($fastBreaker->getState())->toBe('half-open');
+    // Wait for half-open
+    usleep(1_100_000);
+    expect($breaker->getState())->toBe('half-open');
 
-    $fastBreaker->recordFailure();
-    expect($fastBreaker->getState())->toBe('open');
+    // Probe failure -> reopens immediately
+    $breaker->recordFailure();
+    expect($breaker->getState())->toBe('open');
+    expect($breaker->isOpen())->toBeTrue();
 });
 
 test('exception classes exist', function () {
-    expect(class_exists(\App\Services\ClaudeLocal\CircuitBreakerOpenException::class))->toBeTrue();
-    expect(class_exists(\App\Services\ClaudeLocal\RateLimitExceededException::class))->toBeTrue();
+    expect(class_exists(CircuitBreakerOpenException::class))->toBeTrue();
+    expect(class_exists(RateLimitExceededException::class))->toBeTrue();
 });

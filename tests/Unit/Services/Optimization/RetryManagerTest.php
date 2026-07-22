@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Optimization;
 
+use App\Services\Optimization\DeadLetterQueue;
 use App\Services\Optimization\DeepSeekException;
 use App\Services\Optimization\RetryManager;
 use Psr\Log\NullLogger;
 
 beforeEach(function () {
-    $this->logger = new NullLogger();
+    $this->logger = new NullLogger;
     $this->manager = new RetryManager($this->logger);
 });
 
 test('execute returns result on first attempt', function () {
-    $result = $this->manager->execute(fn() => 'success');
+    $result = $this->manager->execute(fn () => 'success');
     expect($result)->toBe('success');
 });
 
@@ -25,6 +26,7 @@ test('execute retries on transient failure and succeeds', function () {
         if ($attempts < 2) {
             throw DeepSeekException::serverError(500);
         }
+
         return 'recovered';
     });
 
@@ -35,10 +37,12 @@ test('execute retries on transient failure and succeeds', function () {
 test('execute throws after exhausting all retries', function () {
     $attempts = 0;
 
-    expect(fn() => $this->manager->execute(function () use (&$attempts) {
-        $attempts++;
-        throw DeepSeekException::serverError(500);
-    }))->toThrow(DeepSeekException::class);
+    expect(function () use (&$attempts) {
+        $this->manager->execute(function () use (&$attempts) {
+            $attempts++;
+            throw DeepSeekException::serverError(500);
+        });
+    })->toThrow(DeepSeekException::class);
 
     // 1 initial + 3 retries = 4 total attempts
     expect($attempts)->toBe(4);
@@ -78,7 +82,7 @@ test('execute retries with exponential backoff pattern', function () {
 
 test('executeBatch succeeds on all items', function () {
     $items = ['alpha', 'beta', 'gamma'];
-    $results = $this->manager->executeBatch($items, fn(string $text) => strtoupper($text));
+    $results = $this->manager->executeBatch($items, fn (string $text) => strtoupper($text));
 
     expect(count($results))->toBe(3);
 });
@@ -88,13 +92,14 @@ test('executeBatch retries failed items granularly', function () {
     $results = $this->manager->executeBatch(
         ['a', 'b', 'c'],
         function (string $item) use (&$failCounts) {
-            if (!isset($failCounts[$item])) {
+            if (! isset($failCounts[$item])) {
                 $failCounts[$item] = 0;
             }
             $failCounts[$item]++;
             if ($failCounts[$item] < 2) {
                 throw DeepSeekException::serverError(503);
             }
+
             return strtoupper($item);
         },
     );
@@ -109,6 +114,7 @@ test('executeBatch returns partial results when some items exhaust retries', fun
             if ($item === 'fail') {
                 throw DeepSeekException::serverError(503);
             }
+
             return strtoupper($item);
         },
     );
@@ -119,9 +125,9 @@ test('executeBatch returns partial results when some items exhaust retries', fun
 });
 
 test('executeBatch sends exhausted retries to dead letter queue', function () {
-    $redis = new FakeRedisStore();
-    $dlq = new \App\Services\Optimization\DeadLetterQueue($redis, new NullLogger());
-    $manager = new RetryManager(new NullLogger(), $dlq);
+    $redis = new FakeRedisStore;
+    $dlq = new DeadLetterQueue($redis, new NullLogger);
+    $manager = new RetryManager(new NullLogger, $dlq);
 
     $results = $manager->executeBatch(
         ['good', 'bad'],
@@ -129,6 +135,7 @@ test('executeBatch sends exhausted retries to dead letter queue', function () {
             if ($item === 'bad') {
                 throw DeepSeekException::serverError(503);
             }
+
             return strtoupper($item);
         },
     );
@@ -145,11 +152,13 @@ test('executeBatch sends exhausted retries to dead letter queue', function () {
 });
 
 test('executeBatch without DLQ does not throw', function () {
-    $manager = new RetryManager(new NullLogger());
+    $manager = new RetryManager(new NullLogger);
 
     $results = $manager->executeBatch(
         ['always-fails'],
-        function () { throw DeepSeekException::serverError(500); },
+        function () {
+            throw DeepSeekException::serverError(500);
+        },
     );
 
     expect($results)->toBeEmpty();

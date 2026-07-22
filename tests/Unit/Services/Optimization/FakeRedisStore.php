@@ -23,6 +23,7 @@ final class FakeRedisStore implements RedisStore
     public function get(string $key): ?string
     {
         $this->evictExpired($key);
+
         return $this->store[$key] ?? null;
     }
 
@@ -47,6 +48,7 @@ final class FakeRedisStore implements RedisStore
             return false;
         }
         $this->set($key, $value, $ttl);
+
         return true;
     }
 
@@ -63,12 +65,14 @@ final class FakeRedisStore implements RedisStore
                 $count++;
             }
         }
+
         return $count;
     }
 
     public function exists(string $key): bool
     {
         $this->evictExpired($key);
+
         return isset($this->store[$key]) || isset($this->lists[$key]);
     }
 
@@ -77,6 +81,7 @@ final class FakeRedisStore implements RedisStore
         $current = (int) ($this->store[$key] ?? 0);
         $current++;
         $this->store[$key] = (string) $current;
+
         return $current;
     }
 
@@ -85,6 +90,7 @@ final class FakeRedisStore implements RedisStore
         $current = (int) ($this->store[$key] ?? 0);
         $current--;
         $this->store[$key] = (string) $current;
+
         return $current;
     }
 
@@ -93,12 +99,14 @@ final class FakeRedisStore implements RedisStore
         $current = (float) ($this->store[$key] ?? 0.0);
         $current += $increment;
         $this->store[$key] = (string) $current;
+
         return $current;
     }
 
     public function lpush(string $key, string $value): int
     {
         $this->lists[$key][] = $value;
+
         return count($this->lists[$key]);
     }
 
@@ -124,7 +132,7 @@ final class FakeRedisStore implements RedisStore
 
     public function lrem(string $key, int $count, string $value): int
     {
-        if (!isset($this->lists[$key])) {
+        if (! isset($this->lists[$key])) {
             return 0;
         }
 
@@ -133,7 +141,7 @@ final class FakeRedisStore implements RedisStore
 
         if ($count === 0) {
             // Remove all
-            $list = array_values(array_filter($list, fn($v) => $v !== $value));
+            $list = array_values(array_filter($list, fn ($v) => $v !== $value));
             $removed = count($this->lists[$key]) - count($list);
         } elseif ($count > 0) {
             // Remove from head
@@ -163,6 +171,7 @@ final class FakeRedisStore implements RedisStore
         }
 
         $this->lists[$key] = $list;
+
         return $removed;
     }
 

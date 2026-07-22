@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 final class QualityGate
 {
     private const HALLUCINATION_THRESHOLD = 0.3;
+
     private const REGRESSION_DELTA_MAX = 0.02; // 2%
 
     public function __construct(
@@ -229,7 +230,7 @@ PROMPT;
             'languages' => $report,
             'tier1_average' => $tier1Scores->avg(),
             'tier1_pass_rate' => $tier1Scores->filter(fn (float $s): bool => $s >= 0.85)->count()
-                . ' / ' . $tier1Scores->count(),
+                .' / '.$tier1Scores->count(),
             'regressions' => $this->regressionTest(),
         ];
     }

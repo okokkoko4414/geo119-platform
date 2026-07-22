@@ -7,7 +7,7 @@ namespace Tests\Unit\Services\Optimization;
 use App\Services\Optimization\ConcurrencyController;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
+    $this->redis = new FakeRedisStore;
     $this->controller = new ConcurrencyController($this->redis, maxConcurrent: 5);
 });
 

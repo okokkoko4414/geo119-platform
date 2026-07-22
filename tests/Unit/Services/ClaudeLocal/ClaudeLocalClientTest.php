@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\ClaudeLocal;
 
 use App\Services\ClaudeLocal\ClaudeLocalClient;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     config(['services.deepseek.endpoint' => 'http://test-endpoint:8080']);
     config(['services.deepseek.api_key' => 'test-key']);
 
-    $this->client = new ClaudeLocalClient();
+    $this->client = new ClaudeLocalClient;
 });
 
 test('chat sends request and parses response', function () {
@@ -70,7 +71,7 @@ test('chat throws on API error', function () {
 test('chat throws on connection error', function () {
     Http::fake([
         'test-endpoint:8080/v1/chat/completions' => function () {
-            throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
+            throw new ConnectionException('Connection refused');
         },
     ]);
 
@@ -171,7 +172,7 @@ test('API failure is recorded in circuit breaker', function () {
 test('connection error is recorded in circuit breaker', function () {
     Http::fake([
         'test-endpoint:8080/v1/chat/completions' => function () {
-            throw new \Illuminate\Http\Client\ConnectionException('timeout');
+            throw new ConnectionException('timeout');
         },
     ]);
 

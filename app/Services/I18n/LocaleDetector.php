@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class LocaleDetector
 {
     private const COOKIE_NAME = 'geo119_locale';
+
     private const COOKIE_TTL = 60 * 24 * 365; // 1 year
 
     /**
@@ -111,5 +112,4 @@ class LocaleDetector
             same_site: 'Lax',
         );
     }
-
 }

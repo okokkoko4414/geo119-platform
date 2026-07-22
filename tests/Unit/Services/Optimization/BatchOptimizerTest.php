@@ -16,8 +16,8 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
-    $this->logger = new NullLogger();
+    $this->redis = new FakeRedisStore;
+    $this->logger = new NullLogger;
 
     $this->dedupCache = new DedupCache($this->redis);
     $this->concurrency = new ConcurrencyController($this->redis, maxConcurrent: 10);
@@ -25,7 +25,7 @@ beforeEach(function () {
     $this->circuitBreaker = new CircuitBreaker($this->redis);
     $this->retryManager = new RetryManager($this->logger);
     $this->costTracker = new CostTracker($this->redis, $this->logger, dailyBudgetCents: 10000.0);
-    $this->aggregator = new BatchResultAggregator();
+    $this->aggregator = new BatchResultAggregator;
 
     $this->aiClient = $this->createMock(ClaudeLocalClient::class);
 });
@@ -110,8 +110,8 @@ test('process respects circuit breaker', function () {
         $this->retryManager,
         $this->costTracker,
         $this->aiClient,
-        $this->logger,
         $this->aggregator,
+        $this->logger,
     );
 
     $items = [
@@ -130,6 +130,7 @@ test('process tracks per-item success and failure', function () {
             if ($content === 'fail-me') {
                 throw new RuntimeException('ClaudeLocal API returned 503');
             }
+
             return makeAiResponse("Optimized: {$content}");
         },
     );
@@ -192,7 +193,7 @@ test('submit returns 202-style estimate for large batches', function () {
     );
 
     $items = array_map(
-        fn($i) => [
+        fn ($i) => [
             'source_text' => "Test text number {$i}",
             'target_locale' => 'zh-CN',
             'optimization_type' => 'grammar',

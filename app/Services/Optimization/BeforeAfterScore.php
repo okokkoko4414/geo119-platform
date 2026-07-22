@@ -60,6 +60,7 @@ final readonly class BeforeAfterScore
             $passiveCount += preg_match_all($pattern, $text);
         }
         $passiveRatio = $passiveCount / max($wordCount, 1);
+
         return max(0.0, 1.0 - $passiveRatio * 5);
     }
 
@@ -71,6 +72,7 @@ final readonly class BeforeAfterScore
         $wordScore = $avgWordLen > 0
             ? max(0.0, 1.0 - abs($avgWordLen - 5) / 5)
             : 0.5;
+
         return ($sentenceScore + $wordScore) / 2;
     }
 
@@ -85,6 +87,7 @@ final readonly class BeforeAfterScore
             $text,
         );
         $ratio = ($positiveMarkers - $negativeMarkers) / max($wordCount, 1);
+
         return max(0.0, min(1.0, 0.5 + $ratio * 10));
     }
 
@@ -94,12 +97,14 @@ final readonly class BeforeAfterScore
             ? max(0.0, 1.0 - ($avgSentenceLen - 10) / 30)
             : 0.5;
         $wordScore = max(0.0, 1.0 - ($avgWordLen - 4) / 8);
+
         return ($sentenceScore + $wordScore) / 2;
     }
 
     private static function fluencyScore(float $avgSentenceLen, float $avgWordLen): float
     {
         $variation = abs($avgSentenceLen - 15) / 15 + abs($avgWordLen - 4.5) / 4.5;
+
         return max(0.0, 1.0 - $variation / 2);
     }
 

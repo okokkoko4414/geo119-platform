@@ -7,7 +7,7 @@ namespace Tests\Unit\Services\Optimization;
 use App\Services\Optimization\CircuitBreaker;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
+    $this->redis = new FakeRedisStore;
     $this->breaker = new CircuitBreaker($this->redis);
 });
 

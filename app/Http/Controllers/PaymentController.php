@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
 use App\Services\Payment\PaymentGateway;
+use Illuminate\View\View;
 
 class PaymentController extends Controller
 {

@@ -7,7 +7,7 @@ namespace App\Services\Seo;
 class JsonLdBuilder
 {
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function organization(array $data = []): string
     {
@@ -23,7 +23,7 @@ class JsonLdBuilder
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function breadcrumb(array $items): string
     {
@@ -45,7 +45,7 @@ class JsonLdBuilder
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function article(array $data): string
     {
@@ -61,6 +61,6 @@ class JsonLdBuilder
     {
         $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
-        return '<script type="application/ld+json">' . "\n" . $json . "\n" . '</script>';
+        return '<script type="application/ld+json">'."\n".$json."\n".'</script>';
     }
 }

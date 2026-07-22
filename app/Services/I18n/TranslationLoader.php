@@ -71,6 +71,6 @@ class TranslationLoader
             return '';
         }
 
-        return '/' . $locale;
+        return '/'.$locale;
     }
 }

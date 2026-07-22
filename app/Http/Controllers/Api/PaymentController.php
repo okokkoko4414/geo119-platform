@@ -32,8 +32,8 @@ class PaymentController extends Controller
 
         // Placeholder for actual payment gateway integration
         return response()->json([
-            'intent_id' => 'pi_' . bin2hex(random_bytes(16)),
-            'client_secret' => 'cs_' . bin2hex(random_bytes(16)),
+            'intent_id' => 'pi_'.bin2hex(random_bytes(16)),
+            'client_secret' => 'cs_'.bin2hex(random_bytes(16)),
             'amount' => $validated['amount'],
             'currency' => $validated['currency'],
             'status' => 'requires_payment_method',

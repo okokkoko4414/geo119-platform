@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 final class TranslationManager
 {
     /**
-     * @param array<string, string> $strings  key => english source text
+     * @param  array<string, string>  $strings  key => english source text
      */
     public function expandLanguage(string $code, array $strings, string $namespace = 'ui'): int
     {
@@ -67,11 +67,13 @@ final class TranslationManager
     {
         $placeholders = [];
 
-        // Extract HTML tags
+        // Extract Laravel placeholders first: :name, :count
+        // Must run before HTML/ICU because _ in token names is \w, so
+        // :\w+ would greedily consume through ___HTML_N___ / ___ICU_N___ tokens.
         $value = (string) preg_replace_callback(
-            '/<[^>]+>/',
+            '/:\w+/',
             function (array $matches) use (&$placeholders): string {
-                $token = '___HTML_' . count($placeholders) . '___';
+                $token = '___PH_'.count($placeholders).'___';
                 $placeholders[$token] = $matches[0];
 
                 return $token;
@@ -83,7 +85,7 @@ final class TranslationManager
         $value = (string) preg_replace_callback(
             '/\{[^}]+\}/',
             function (array $matches) use (&$placeholders): string {
-                $token = '___ICU_' . count($placeholders) . '___';
+                $token = '___ICU_'.count($placeholders).'___';
                 $placeholders[$token] = $matches[0];
 
                 return $token;
@@ -91,11 +93,11 @@ final class TranslationManager
             $value
         );
 
-        // Extract Laravel placeholders: :name, :count
+        // Extract HTML tags last (they can wrap other placeholder types)
         $value = (string) preg_replace_callback(
-            '/:\w+/',
+            '/<[^>]+>/',
             function (array $matches) use (&$placeholders): string {
-                $token = '___PH_' . count($placeholders) . '___';
+                $token = '___HTML_'.count($placeholders).'___';
                 $placeholders[$token] = $matches[0];
 
                 return $token;

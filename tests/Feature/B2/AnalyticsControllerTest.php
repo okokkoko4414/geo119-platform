@@ -91,9 +91,11 @@ it('returns language breakdown sorted by CTR', function (): void {
 });
 
 it('dashboard page loads successfully', function (): void {
-    $response = $this->get('/dashboard/analytics');
+    $this->withoutVite();
+
+    $response = $this->get('/en/dashboard/analytics');
 
     $response->assertOk()
-        ->assertSee('Effect Tracking')
-        ->assertSee('Impressions Today');
+        ->assertViewIs('pages.analytics.dashboard')
+        ->assertViewHas(['impressions', 'clicks', 'ctr']);
 });

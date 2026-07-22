@@ -33,7 +33,7 @@ final class BatchController
         ]);
 
         // Check circuit breaker before accepting batch
-        if (!$this->circuitBreaker->isAvailable()) {
+        if (! $this->circuitBreaker->isAvailable()) {
             return response()->json([
                 'error' => 'Service temporarily unavailable',
                 'message' => 'Circuit breaker is open. DeepSeek is experiencing failures.',

@@ -30,6 +30,7 @@ class HealthController extends Controller
     {
         try {
             DB::select('SELECT 1');
+
             return ['healthy' => true, 'latency_ms' => 0];
         } catch (\Throwable $e) {
             return ['healthy' => false, 'error' => $e->getMessage()];
@@ -40,6 +41,7 @@ class HealthController extends Controller
     {
         try {
             Redis::ping();
+
             return ['healthy' => true];
         } catch (\Throwable $e) {
             return ['healthy' => false, 'error' => $e->getMessage()];
@@ -51,6 +53,7 @@ class HealthController extends Controller
         try {
             Cache::put('health_check', 'ok', 10);
             $value = Cache::get('health_check');
+
             return ['healthy' => $value === 'ok'];
         } catch (\Throwable $e) {
             return ['healthy' => false, 'error' => $e->getMessage()];

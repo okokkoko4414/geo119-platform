@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Redis;
 final class EventTracker
 {
     private const STREAM_KEY = 'events:stream';
+
     private const MAX_STREAM_LENGTH = 100_000;
 
     public function __construct(
@@ -26,6 +27,8 @@ final class EventTracker
     {
         $ua = $this->uaParser->parse($request->userAgent() ?? '');
 
+        $now = now();
+
         $event = Event::create([
             'event_type' => $payload['type'],
             'user_id' => $payload['user_id'] ?? null,
@@ -38,6 +41,8 @@ final class EventTracker
             'target_url' => $payload['target'] ?? null,
             'referrer_url' => $request->header('Referer'),
             'metadata' => $payload['metadata'] ?? null,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         Redis::xadd(self::STREAM_KEY, '*', [
@@ -50,7 +55,7 @@ final class EventTracker
             'timestamp' => (string) $event->created_at->timestamp,
         ]);
 
-        Redis::xtrim(self::STREAM_KEY, 'MAXLEN', '~', (string) self::MAX_STREAM_LENGTH);
+        Redis::xtrim(self::STREAM_KEY, self::MAX_STREAM_LENGTH, true);
 
         if (! $ua['is_bot']) {
             $this->incrementCounters($event);

@@ -27,13 +27,13 @@ beforeEach(function (): void {
 });
 
 it('loads language definitions from config', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->definitionCount())->toBe(4);
 });
 
 it('finds a definition by code', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     $def = $registry->getDefinition('vi');
 
@@ -43,13 +43,13 @@ it('finds a definition by code', function (): void {
 });
 
 it('returns null for unknown language code', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->getDefinition('xx'))->toBeNull();
 });
 
 it('activates a language from config definition', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
     $lang = $registry->activate('vi');
 
     expect($lang)->toBeInstanceOf(Language::class)
@@ -59,13 +59,13 @@ it('activates a language from config definition', function (): void {
 });
 
 it('throws exception when activating unknown language', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     $registry->activate('xx');
 })->throws(RuntimeException::class);
 
 it('deactivates a language', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
     $registry->activate('vi');
     $registry->deactivate('vi');
 
@@ -74,28 +74,28 @@ it('deactivates a language', function (): void {
 });
 
 it('boots all languages from config', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
     $registry->boot();
 
     expect(Language::active()->count())->toBe(4);
 });
 
 it('identifies RTL languages', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->isRtl('ar'))->toBeTrue()
         ->and($registry->isRtl('en'))->toBeFalse();
 });
 
 it('identifies gendered languages', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->isGendered('fr'))->toBeTrue()
         ->and($registry->isGendered('en'))->toBeFalse();
 });
 
 it('returns quality threshold per tier', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->getQualityThreshold(1))->toBe(0.85)
         ->and($registry->getQualityThreshold(2))->toBe(0.68)
@@ -103,13 +103,13 @@ it('returns quality threshold per tier', function (): void {
 });
 
 it('returns baseline language codes', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
 
     expect($registry->getBaselineLanguages())->toBe(['en', 'vi']);
 });
 
 it('sets and updates quality scores', function (): void {
-    $registry = new LanguageRegistry();
+    $registry = new LanguageRegistry;
     $registry->activate('en');
     $registry->setQualityScore('en', 0.92);
 

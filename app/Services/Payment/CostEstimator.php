@@ -10,7 +10,7 @@ class CostEstimator
      * Estimate cost for language quality optimization.
      * CEO non-negotiable #1: cost displayed before every payment confirmation.
      *
-     * @param array{character_count: int, language_pair: string, service_level: string} $params
+     * @param  array{character_count: int, language_pair: string, service_level: string}  $params
      * @return array{subtotal: float, tax: float, total: float, currency: string, breakdown: array}
      */
     public function estimate(array $params): array

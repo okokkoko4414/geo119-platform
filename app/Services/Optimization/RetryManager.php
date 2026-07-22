@@ -10,6 +10,7 @@ final class RetryManager
 {
     /** @var array<int, int> Retry attempt -> delay in ms */
     private const DELAYS_MS = [1000, 2000, 4000];
+
     private const MAX_JITTER_PCT = 0.3;
 
     public function __construct(
@@ -22,8 +23,10 @@ final class RetryManager
      * Execute an operation with retry logic.
      *
      * @template T
-     * @param callable(): T $operation
+     *
+     * @param  callable(): T  $operation
      * @return T
+     *
      * @throws DeepSeekException
      */
     public function execute(callable $operation): mixed
@@ -68,8 +71,9 @@ final class RetryManager
      * Execute a batch operation with granular retry — only retry failed items.
      *
      * @template T
-     * @param array<int, T> $items
-     * @param callable(T): mixed $operation
+     *
+     * @param  array<int, T>  $items
+     * @param  callable(T): mixed  $operation
      * @return array<int, array{index: int, result: mixed}>
      */
     public function executeBatch(array $items, callable $operation): array
@@ -106,7 +110,7 @@ final class RetryManager
         }
 
         // Send permanently failed items to dead letter queue
-        if ($this->deadLetterQueue !== null && !empty($retryQueue)) {
+        if ($this->deadLetterQueue !== null && ! empty($retryQueue)) {
             foreach ($retryQueue as $entry) {
                 $this->deadLetterQueue->push([
                     'index' => $entry['index'],

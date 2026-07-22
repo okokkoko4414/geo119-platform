@@ -65,4 +65,24 @@ final class PhpRedisStore implements RedisStore
     {
         return (float) Redis::incrbyfloat($key, $increment);
     }
+
+    public function lpush(string $key, string $value): int
+    {
+        return (int) Redis::lpush($key, $value);
+    }
+
+    public function lrange(string $key, int $start, int $stop): array
+    {
+        return Redis::lrange($key, $start, $stop);
+    }
+
+    public function lrem(string $key, int $count, string $value): int
+    {
+        return (int) Redis::lrem($key, $count, $value);
+    }
+
+    public function llen(string $key): int
+    {
+        return (int) Redis::llen($key);
+    }
 }

@@ -15,7 +15,7 @@ declare(strict_types=1);
             'container_class' => 'flex gap-4',
             'fallback_cb' => false,
         ]);
-        ?>
+?>
     </div>
 </footer>
 

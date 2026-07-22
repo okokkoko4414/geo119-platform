@@ -18,7 +18,7 @@ test('aggregate computes summary statistics', function () {
             score: new BeforeAfterScore(0.7, 0.85, 0.214),
             costCents: 0.001, inputTokens: 10, outputTokens: 12,
             model: 'deepseek-chat', latencyMs: 500,
-            cachedAt: new DateTimeImmutable(),
+            cachedAt: new DateTimeImmutable,
         ),
         new OptimizationResult(
             id: '2', sourceText: 'two', optimizedText: 'two optimized',
@@ -26,11 +26,11 @@ test('aggregate computes summary statistics', function () {
             score: new BeforeAfterScore(0.6, 0.9, 0.5),
             costCents: 0.002, inputTokens: 8, outputTokens: 10,
             model: 'deepseek-chat', latencyMs: 300,
-            cachedAt: new DateTimeImmutable(),
+            cachedAt: new DateTimeImmutable,
         ),
     ];
 
-    $aggregator = new BatchResultAggregator();
+    $aggregator = new BatchResultAggregator;
     $summary = $aggregator->aggregate($results);
 
     expect($summary['summary']['total'])->toBe(2)
@@ -50,7 +50,7 @@ test('aggregate handles mixed cache hits and misses', function () {
             score: new BeforeAfterScore(0.8, 0.9, 0.125),
             costCents: 0.0, inputTokens: 0, outputTokens: 0,
             model: 'deepseek-chat', latencyMs: 5,
-            cachedAt: new DateTimeImmutable(), fromCache: true,
+            cachedAt: new DateTimeImmutable, fromCache: true,
         ),
         new OptimizationResult(
             id: '2', sourceText: 'fresh', optimizedText: 'fresh result',
@@ -58,11 +58,11 @@ test('aggregate handles mixed cache hits and misses', function () {
             score: new BeforeAfterScore(0.7, 0.85, 0.214),
             costCents: 0.005, inputTokens: 20, outputTokens: 25,
             model: 'deepseek-chat', latencyMs: 800,
-            cachedAt: new DateTimeImmutable(), fromCache: false,
+            cachedAt: new DateTimeImmutable, fromCache: false,
         ),
     ];
 
-    $aggregator = new BatchResultAggregator();
+    $aggregator = new BatchResultAggregator;
     $summary = $aggregator->aggregate($results);
 
     expect($summary['summary']['cache_hits'])->toBe(1)
@@ -77,10 +77,10 @@ test('aggregate includes all detail fields per item', function () {
         score: new BeforeAfterScore(0.5, 0.75, 0.5),
         costCents: 0.003, inputTokens: 15, outputTokens: 18,
         model: 'deepseek-chat', latencyMs: 600,
-        cachedAt: new DateTimeImmutable(),
+        cachedAt: new DateTimeImmutable,
     );
 
-    $aggregator = new BatchResultAggregator();
+    $aggregator = new BatchResultAggregator;
     $summary = $aggregator->aggregate([$result]);
 
     $detail = $summary['details'][0];
@@ -120,10 +120,10 @@ test('aggregate computes cost per word', function () {
         score: new BeforeAfterScore(0.8, 0.9, 0.125),
         costCents: 0.010, inputTokens: 10, outputTokens: 12,
         model: 'deepseek-chat', latencyMs: 400,
-        cachedAt: new DateTimeImmutable(),
+        cachedAt: new DateTimeImmutable,
     );
 
-    $aggregator = new BatchResultAggregator();
+    $aggregator = new BatchResultAggregator;
     $summary = $aggregator->aggregate([$result]);
 
     expect($summary['summary']['total_words'])->toBe(5)

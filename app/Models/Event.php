@@ -22,6 +22,8 @@ class Event extends Model
         'target_url',
         'referrer_url',
         'metadata',
+        'created_at',
+        'updated_at',
     ];
 
     protected function casts(): array

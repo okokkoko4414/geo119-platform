@@ -5,8 +5,11 @@ namespace App\Services\ClaudeLocal;
 class RateLimiter
 {
     private float $tokens;
+
     private float $maxTokens;
+
     private float $refillRate; // tokens per second
+
     private ?float $lastRefill = null;
 
     public function __construct(int $maxTokens = 100, float $refillRate = 100.0 / 60.0)

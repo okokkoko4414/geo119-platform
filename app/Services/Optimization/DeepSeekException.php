@@ -21,6 +21,7 @@ class DeepSeekException extends RuntimeException
     public static function partialResponse(array $missingSegments): self
     {
         $ids = implode(', ', $missingSegments);
+
         return new self("DeepSeek returned partial response — missing segments: {$ids}");
     }
 

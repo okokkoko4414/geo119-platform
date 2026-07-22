@@ -5,8 +5,11 @@ namespace App\Services\ClaudeLocal;
 class CircuitBreaker
 {
     private int $failureCount = 0;
+
     private int $failureThreshold;
+
     private int $openDurationSeconds;
+
     private ?int $openedAt = null;
 
     public function __construct(int $failureThreshold = 5, int $openDurationSeconds = 30)
@@ -22,10 +25,7 @@ class CircuitBreaker
         }
 
         if (time() - $this->openedAt >= $this->openDurationSeconds) {
-            $this->openedAt = null;
-            $this->failureCount = 0;
-
-            return false; // half-open — allow probe
+            return false; // half-open — allow probe (does NOT mutate state)
         }
 
         return true;
@@ -39,6 +39,15 @@ class CircuitBreaker
 
     public function recordFailure(): void
     {
+        // If in half-open state (openedAt is set but cooldown has expired),
+        // a failure immediately reopens the circuit
+        if ($this->openedAt !== null && ! $this->isOpen()) {
+            $this->openedAt = time();
+            $this->failureCount = 1;
+
+            return;
+        }
+
         $this->failureCount++;
 
         if ($this->failureCount >= $this->failureThreshold) {

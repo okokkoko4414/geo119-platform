@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Jobs\TranslateStringJob;
 use App\Models\Language;
 use App\Models\Translation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,7 +59,7 @@ it('shows dry run output without dispatching jobs', function (): void {
     $this->artisan('lang:expand', ['code' => 'vi', '--dry-run' => true])
         ->assertExitCode(0);
 
-    Bus::assertNotDispatched(\App\Jobs\TranslateStringJob::class);
+    Bus::assertNotDispatched(TranslateStringJob::class);
 });
 
 it('dispatches jobs for new language', function (): void {
@@ -72,7 +73,7 @@ it('dispatches jobs for new language', function (): void {
     $this->artisan('lang:expand', ['code' => 'vi'])
         ->assertExitCode(0);
 
-    Bus::assertDispatched(\App\Jobs\TranslateStringJob::class, 1);
+    Bus::assertDispatched(TranslateStringJob::class, 1);
 });
 
 it('fails when no source translations exist', function (): void {
@@ -96,5 +97,5 @@ it('retranslates an existing language with force flag', function (): void {
     $this->artisan('lang:expand', ['code' => 'vi', '--retranslate' => true])
         ->assertExitCode(0);
 
-    Bus::assertDispatched(\App\Jobs\TranslateStringJob::class, 1);
+    Bus::assertDispatched(TranslateStringJob::class, 1);
 });

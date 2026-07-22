@@ -78,6 +78,6 @@ it('rejects excessively long type', function (): void {
 it('SSE endpoint returns event stream headers', function (): void {
     $response = $this->get('/api/e/live');
 
-    $response->assertHeader('Content-Type', 'text/event-stream');
-    $response->assertHeader('Cache-Control', 'no-cache');
+    $response->assertHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    $this->assertStringContainsString('no-cache', $response->headers->get('Cache-Control'));
 });

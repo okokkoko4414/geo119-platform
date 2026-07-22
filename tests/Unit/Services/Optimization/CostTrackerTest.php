@@ -9,8 +9,8 @@ use App\Services\Optimization\DeepSeekResponse;
 use Psr\Log\NullLogger;
 
 beforeEach(function () {
-    $this->redis = new FakeRedisStore();
-    $this->logger = new NullLogger();
+    $this->redis = new FakeRedisStore;
+    $this->logger = new NullLogger;
     $this->tracker = new CostTracker($this->redis, $this->logger, dailyBudgetCents: 10.0);
 });
 

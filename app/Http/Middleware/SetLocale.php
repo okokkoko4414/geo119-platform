@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Services\I18n\LocaleDetector;
 use Closure;
 use Illuminate\Http\Request;
-use App\Services\I18n\LocaleDetector;
 
 class SetLocale
 {
@@ -19,7 +19,7 @@ class SetLocale
         $locale = $this->detector->detect($request);
 
         app()->setLocale($locale);
-        setlocale(LC_TIME, $locale . '_' . strtoupper($locale) . '.UTF-8');
+        setlocale(LC_TIME, $locale.'_'.strtoupper($locale).'.UTF-8');
 
         return $next($request);
     }

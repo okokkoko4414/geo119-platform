@@ -10,8 +10,8 @@ get_header();
 
 <main id="main" class="page-container" role="main">
     <?php
-    if (have_posts()) :
-        while (have_posts()) :
+    if (have_posts()) {
+        while (have_posts()) {
             the_post();
             ?>
             <article <?php post_class('content-container py-8'); ?>>
@@ -21,15 +21,15 @@ get_header();
                 </div>
             </article>
             <?php
-        endwhile;
-    else :
+        }
+    } else {
         ?>
         <div class="py-16 text-center">
             <h2 class="text-xl text-surface-600"><?php _e('No content found.', 'geo119'); ?></h2>
         </div>
         <?php
-    endif;
-    ?>
+    }
+?>
 </main>
 
 <?php

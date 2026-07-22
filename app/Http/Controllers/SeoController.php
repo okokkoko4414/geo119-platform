@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Services\Seo\JsonLdBuilder;
 use App\Services\Seo\SitemapGenerator;
 use Illuminate\Http\Response;
 

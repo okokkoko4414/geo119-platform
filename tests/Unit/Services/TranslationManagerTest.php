@@ -40,8 +40,7 @@ it('expands a language by dispatching translation jobs', function (): void {
 
     expect($dispatched)->toBe(2);
     Bus::assertDispatched(TranslateStringJob::class, 2);
-    Bus::assertDispatched(TranslateStringJob::class, fn ($job): bool =>
-        $job->locale === 'vi' && $job->key === 'hello'
+    Bus::assertDispatched(TranslateStringJob::class, fn ($job): bool => $job->locale === 'vi' && $job->key === 'hello'
     );
 });
 
@@ -57,7 +56,7 @@ it('dispatches jobs to correct tier queues', function (): void {
     Bus::assertDispatched(TranslateStringJob::class, 3);
 
     $jobs = Bus::dispatched(TranslateStringJob::class);
-    $queues = $jobs->map(fn ($job) => $job[0]['job']->queue ?? null)->filter();
+    $queues = collect($jobs)->map(fn ($job): ?string => $job->queue ?? null)->filter();
 
     expect($queues)->toContain('translations-tier1')
         ->and($queues)->toContain('translations-tier2')

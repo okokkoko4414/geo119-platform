@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\EventTracking\EventTracker;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -62,7 +61,7 @@ final class EventController extends Controller
                     $counters = $this->tracker->todayCounters();
 
                     echo "event: counters\n";
-                    echo 'data: ' . json_encode($counters, JSON_THROW_ON_ERROR) . "\n\n";
+                    echo 'data: '.json_encode($counters, JSON_THROW_ON_ERROR)."\n\n";
 
                     $lastEntry = end($entries);
                     if ($lastEntry !== false) {
